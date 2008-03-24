@@ -1,10 +1,12 @@
 TEMPLATE = app
+DEPENDPATH += . build src ui
+INCLUDEPATH += .
 QT = gui core xml svg
 CONFIG += qt \
  warn_on \
  console \
  x86 \
- debug_and_release
+ release
 DESTDIR = bin
 OBJECTS_DIR = build
 MOC_DIR = build

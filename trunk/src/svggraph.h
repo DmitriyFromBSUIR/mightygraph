@@ -12,12 +12,25 @@ class SvgGraph : public QSvgWidget
 	void setOriginalSvgSize();
 	QByteArray toSvg();
 	QDomDocument getGraphDom();
+	
+	signals:
+	void action(QString xsl);
+
 	public slots:
 	void open();
+	void ajouterSommet ();
+	//void xslAction (QString xsl);
+	
+	protected:
+	void popupMenu(QPoint pos);
+	void mousePressEvent(QMouseEvent *e);
 	
 	private:
+	QWidget *parent;
 	QDomDocument graphDom;
-	int svgWidth, svgHeight;
-	
+	/* lastPosH,lastPosY : position de la souris lors du dernier clic */
+	int svgWidth, svgHeight, lastPosH, lastPosV;
+
+	void update ();
 };
 #endif

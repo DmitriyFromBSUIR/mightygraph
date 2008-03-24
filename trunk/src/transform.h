@@ -6,8 +6,8 @@ class Transform {
 	Transform ();
 	Transform (QDomDocument src);
 	void load (QDomDocument src);
-	QByteArray toByteArray ();
-	QDomDocument toDomDocument ();
+	QByteArray toByteArray (QString xsl = "");
+	QDomDocument toDomDocument (QString xsl = "");
 	
 	private:
 	QDomDocument doc;
