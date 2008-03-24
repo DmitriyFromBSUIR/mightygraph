@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="convertir.xsl"?>
+
+<graphe>
+
+	<sommet id="0">
+		<valeur>10</valeur>
+		<posh>50</posh>
+		<posv>50</posv>
+	</sommet>
+	<sommet id="1">
+		<valeur>9</valeur>
+		<posh>150</posh>
+		<posv>50</posv>
+	</sommet>
+	<sommet id="2">
+		<valeur>2</valeur>
+		<posh>150</posh>
+		<posv>150</posv>
+	</sommet>
+	<sommet id="3">
+		<valeur>7</valeur>
+		<posh>50</posh>
+		<posv>150</posv>
+	</sommet>
+	<sommet id="4">
+		<valeur>3</valeur>
+		<posh>100</posh>
+		<posv>250</posv>
+	</sommet>
+
+	<liaison id="0">
+		<source>0</source>
+		<destination>1</destination>
+	</liaison>
+	<liaison id="1">
+		<source>1</source>
+		<destination>2</destination>
+	</liaison>
+	<liaison id="2">
+		<source>2</source>
+		<destination>3</destination>
+	</liaison>
+	<liaison id="3">
+		<source>3</source>
+		<destination>0</destination>
+	</liaison>
+	<liaison id="4">
+		<source>3</source>
+		<destination>4</destination>
+	</liaison>
+	<liaison id="5">
+		<source>0</source>
+		<destination>2</destination>
+	</liaison>
+</graphe>

@@ -1,0 +1,72 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>530</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Mighty Graph</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset>../pngicon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <item>
+     <widget class="SvgGraph" native="1" name="graphImg" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>530</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFichier" >
+    <property name="title" >
+     <string>Fichier</string>
+    </property>
+    <addaction name="actionOuvrir" />
+    <addaction name="actionQuitter" />
+   </widget>
+   <addaction name="menuFichier" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="actionOuvrir" >
+   <property name="text" >
+    <string>Ouvrir</string>
+   </property>
+  </action>
+  <action name="actionQuitter" >
+   <property name="text" >
+    <string>Quitter</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SvgGraph</class>
+   <extends>QWidget</extends>
+   <header>src/svggraph.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
