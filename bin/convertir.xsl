@@ -11,7 +11,7 @@
 		baseProfile="full"
 		x="0"
 		y="0"
-		width="300"
+		width="350"
 		height="350"
 		id="graphe">
 		<!-- Couche 0 - Liaisons -->

@@ -2,7 +2,6 @@
 <?xml-stylesheet type="text/xsl" href="convertir.xsl"?>
 
 <graphe>
-
 	<sommet id="0">
 		<valeur>10</valeur>
 		<posh>50</posh>
