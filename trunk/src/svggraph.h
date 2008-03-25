@@ -14,12 +14,11 @@ class SvgGraph : public QSvgWidget
 	QDomDocument getGraphDom();
 	
 	signals:
-	void action(QString xsl);
+	void action(QAction *);
 
 	public slots:
 	void open();
-	void ajouterSommet ();
-	//void xslAction (QString xsl);
+	void xslAction (QAction *action);
 	
 	protected:
 	void popupMenu(QPoint pos);

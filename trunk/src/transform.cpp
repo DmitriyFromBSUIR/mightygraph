@@ -9,6 +9,9 @@ Transform::Transform(QDomDocument src) { load(src); }
 void Transform::load(QDomDocument src) { doc = src; }
 
 QByteArray Transform::toByteArray (QString xsl) {
+	/* Ne rien faire si la source est vide */
+	if (doc.isNull()) return 0;
+	
 	QByteArray dest, src = doc.toByteArray();
 	
 	/* Enregistrer le flux XML dans un fichier temporaire */
