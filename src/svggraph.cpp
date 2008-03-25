@@ -8,6 +8,7 @@
 
 SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 	this->parent = parent;
+	svgWidth = svgHeight = lastPosH = lastPosV = 0;
 }
 
 /**
@@ -71,9 +72,9 @@ QDomDocument SvgGraph::getGraphDom() {
 void SvgGraph::popupMenu(QPoint pos)
 {
 	QMenu menu(this);
+	connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(xslAction(QAction *)));
+
 	menu.addAction("Ouvrir", this, SLOT(open()));
-	menu.addSeparator();
-	menu.addAction("Ajouter sommet", this, SLOT(ajouterSommet()));
 	menu.addSeparator();
 	
 	/* Charger la liste des actions disponibles */
@@ -95,7 +96,8 @@ void SvgGraph::popupMenu(QPoint pos)
 		QDomNode act = actionsNodes.at(i);
 		text = act.toElement().attribute("text");
 		xsl = act.toElement().attribute("path");
-		menu.addAction(text, this, SLOT(xslAction(xsl)));
+		QAction *action = menu.addAction(text);
+		action->setData(xsl);
 	}
 	
 	/* Afficher le menu */
@@ -107,53 +109,16 @@ void SvgGraph::popupMenu(QPoint pos)
   */
 void SvgGraph::mousePressEvent(QMouseEvent *e)
 {
-	lastPosH = e->x();
-	lastPosV = e->y();
+	/* Enregister la position lors du dernier clic (par rapport a l'image non agrandie) */
+	lastPosH = e->x() * originalSvgSize().width() / size().width();
+	lastPosV = e->y() * originalSvgSize().height() / size().height();
 	if (e->button() == Qt::RightButton)
 	{
 		popupMenu(e->globalPos());
 		e->accept(); return;
-	} else { 
+	} else {
 		e->ignore(); return; 
 	}
-}
-
-void SvgGraph::ajouterSommet ()
-{
-	QDomDocument xslDom;
-	
-	/* Charger le fichier genere */
-	QFile filexsl( "ajouter.xsl" );
-	if (filexsl.open(QIODevice::ReadOnly)) {
-		xslDom.setContent(&filexsl);
-	} else {
-		return;
-	}
-	filexsl.close();
-	QString posvSt; posvSt.setNum(lastPosV);
-	QString poshSt; poshSt.setNum(lastPosH);
-	
-	QDomElement posh = xslDom.createElement("posh");
-	posh.appendChild(xslDom.createTextNode(poshSt));
-	QDomElement posv = xslDom.createElement("posv");
-	posv.appendChild(xslDom.createTextNode(posvSt));
-	
-	//xslDom.appendChild(posh);
-	//xslDom.appendChild(posv);
-	
-	xslDom.elementsByTagName("sommet").at(0).appendChild(posh);
-	xslDom.elementsByTagName("sommet").at(0).appendChild(posv);
-	QString deb(xslDom.elementsByTagName("posv").at(0).toElement().text());
-	qDebug(deb.toLatin1());
-	/* Enregistrer le flux XML dans un fichier temporaire */
-	QFile fileNewXsl( "tmpxsl.xsl" );
-	if (fileNewXsl.open(QIODevice::WriteOnly)) { fileNewXsl.write(xslDom.toByteArray()); }
-	fileNewXsl.close();
-	
-	Transform *tr = new Transform (graphDom);
-	
-	graphDom = tr->toDomDocument("tmpxsl.xsl");
-	update();
 }
 
 void SvgGraph::update ()
@@ -168,8 +133,40 @@ void SvgGraph::update ()
 	setOriginalSvgSize();
 }
 
-/*void SvgGraph::xslAction ()
+void SvgGraph::xslAction (QAction *action)
 {
+	/* Pas de transformation associee a l'action : ne rien faire */
+	if (action->data().isNull()) return;
+	
+	QDomDocument xslDom;
+	
+	/* Charger le fichier de transformation */
+	QFile filexsl( action->data().toString() );
+	if (filexsl.open(QIODevice::ReadOnly)) {
+		xslDom.setContent(&filexsl);
+	} else {
+		return;
+	}
+	filexsl.close();
+	QString posvSt; posvSt.setNum(lastPosV);
+	QString poshSt; poshSt.setNum(lastPosH);
+	
+	QDomElement posh = xslDom.createElement("posh");
+	posh.appendChild(xslDom.createTextNode(poshSt));
+	QDomElement posv = xslDom.createElement("posv");
+	posv.appendChild(xslDom.createTextNode(posvSt));
+	
+	xslDom.elementsByTagName("sommet").at(0).appendChild(posh);
+	xslDom.elementsByTagName("sommet").at(0).appendChild(posv);
+	QString deb(xslDom.elementsByTagName("posv").at(0).toElement().text());
+
+	/* Enregistrer le flux XML dans un fichier temporaire */
+	QFile fileNewXsl( "tmpxsl.xsl" );
+	if (fileNewXsl.open(QIODevice::WriteOnly)) { fileNewXsl.write(xslDom.toByteArray()); }
+	fileNewXsl.close();
+	
 	Transform *tr = new Transform (graphDom);
-	graphDom = tr->toDomDocument(xsl);
-}*/
+	
+	graphDom = tr->toDomDocument("tmpxsl.xsl");
+	update();
+}
