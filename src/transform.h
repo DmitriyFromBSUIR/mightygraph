@@ -22,6 +22,7 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 #include <QDomDocument>
+ #include <QStringList>
 using namespace std;
 class Transform {
 	public:
@@ -31,11 +32,15 @@ class Transform {
 	void loadXsl (QString xslPath);
 	void setDoc (QByteArray doc);
 	void setXsl (QByteArray xsl);
+	void addParam (QString name, QString value);
+	void addParam (QString name, int value);
 	QByteArray toByteArray ();
 	QByteArray toByteArray2 ();
 	private:
 	QByteArray doc;
 	QByteArray xsl;
+	QStringList paramList;
+	
 
 };
 #endif

@@ -81,11 +81,7 @@ QByteArray SvgGraph::toSvg() {
 	tr->setDoc(graphDom.toByteArray());
 	tr->loadXsl(xslpath);
 	QByteArray res (tr->toByteArray());
-	/*
-	qDebug("A");
-	delete tr;
-	qDebug("B");
-	exit(0);*/
+
 	return res;
 }
 
@@ -179,20 +175,13 @@ void SvgGraph::xslAction (QAction *action)
 		return;
 	}
 	filexsl.close();
-	QString posvSt; posvSt.setNum(lastPosV);
-	QString poshSt; poshSt.setNum(lastPosH);
-	
-	QDomElement posh = xslDom.createElement("posh");
-	posh.appendChild(xslDom.createTextNode(poshSt));
-	QDomElement posv = xslDom.createElement("posv");
-	posv.appendChild(xslDom.createTextNode(posvSt));
-	
-	xslDom.elementsByTagName("sommet").at(0).appendChild(posh);
-	xslDom.elementsByTagName("sommet").at(0).appendChild(posv);
 
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
 	tr->setXsl(xslDom.toByteArray());
+	tr->addParam("posv", lastPosV);
+	tr->addParam("posh", lastPosH);
+	tr->addParam("value", "'XYZ'");
 	graphDom.setContent(tr->toByteArray());
 	update();
 }
