@@ -54,8 +54,17 @@ void SvgGraph::setOriginalSvgSize() {
   * @return image SVG du graphe
   */
 QByteArray SvgGraph::toSvg() {
-	Transform *tr = new Transform (graphDom);
-	return tr->toByteArray();
+	Transform *tr = new Transform ();
+	QString xslpath("convertir.xsl");
+	tr->setDoc(graphDom.toByteArray());
+	tr->loadXsl(xslpath);
+	QByteArray res (tr->toByteArray());
+	/*
+	qDebug("A");
+	delete tr;
+	qDebug("B");
+	exit(0);*/
+	return res;
 }
 
 /**
@@ -158,15 +167,10 @@ void SvgGraph::xslAction (QAction *action)
 	
 	xslDom.elementsByTagName("sommet").at(0).appendChild(posh);
 	xslDom.elementsByTagName("sommet").at(0).appendChild(posv);
-	QString deb(xslDom.elementsByTagName("posv").at(0).toElement().text());
 
-	/* Enregistrer le flux XML dans un fichier temporaire */
-	QFile fileNewXsl( "tmpxsl.xsl" );
-	if (fileNewXsl.open(QIODevice::WriteOnly)) { fileNewXsl.write(xslDom.toByteArray()); }
-	fileNewXsl.close();
-	
-	Transform *tr = new Transform (graphDom);
-	
-	graphDom = tr->toDomDocument("tmpxsl.xsl");
+	Transform *tr = new Transform;
+	tr->setDoc(graphDom.toByteArray());
+	tr->setXsl(xslDom.toByteArray());
+	graphDom.setContent(tr->toByteArray());
 	update();
 }

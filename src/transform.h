@@ -1,16 +1,20 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 #include <QDomDocument>
+using namespace std;
 class Transform {
 	public:
 	Transform ();
-	Transform (QDomDocument src);
-	void load (QDomDocument src);
-	QByteArray toByteArray (QString xsl = "");
-	QDomDocument toDomDocument (QString xsl = "");
-	
+
+	void loadDoc (QString docPath);
+	void loadXsl (QString xslPath);
+	void setDoc (QByteArray doc);
+	void setXsl (QByteArray xsl);
+	QByteArray toByteArray ();
+	QByteArray toByteArray2 ();
 	private:
-	QDomDocument doc;
+	QByteArray doc;
+	QByteArray xsl;
 
 };
 #endif
