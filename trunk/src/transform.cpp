@@ -1,45 +1,66 @@
 #include "transform.h"
 #include <QDomDocument>
 #include <QFile>
+#include <libxslt/transform.h>
 
 Transform::Transform() { }
 
-Transform::Transform(QDomDocument src) { load(src); }
-
-void Transform::load(QDomDocument src) { doc = src; }
-
-QByteArray Transform::toByteArray (QString xsl) {
-	/* Ne rien faire si la source est vide */
-	if (doc.isNull()) return 0;
-	
-	QByteArray dest, src = doc.toByteArray();
-	
-	/* Enregistrer le flux XML dans un fichier temporaire */
-	QFile filesrc( "tmpsrc.xml" );
-	if (filesrc.open(QIODevice::WriteOnly)) { filesrc.write(src); }
-	filesrc.close();
-	
-	/* Effectuer la transformation */
-	system("xsltproc " + xsl.toLatin1() + " tmpsrc.xml > tmpdest.xml");
-	
-	/* Charger le fichier genere */
-	QFile filedest( "tmpdest.xml" );
-	if (filedest.open(QIODevice::ReadOnly)) {
-		dest = filedest.readAll();
-	} else {
-		return src;
+void Transform::loadDoc (QString docPath) {
+	/* Charger le document */
+	QFile docFile(docPath);
+	if (docFile.open(QIODevice::ReadOnly)) {
+		doc = docFile.readAll();
 	}
-	filedest.close();
-
-	/* Supprimer les fichiers temporaires */
-	//remove(".tmpsvg.svg"); remove(".tmpxml.xml");	
-	
-	/* Retourner le flux XML transforme */
-	return dest;
+	docFile.close();
 }
 
-QDomDocument Transform::toDomDocument (QString xsl) {
-	QDomDocument doc;
-	doc.setContent(toByteArray(xsl));
-	return doc;
+void Transform::loadXsl (QString xslPath) {
+	/* Charger la transformation */
+	QFile xslFile(xslPath);
+	if (xslFile.open(QIODevice::ReadOnly)) {
+		xsl = xslFile.readAll();
+	}
+	xslFile.close();
+}
+
+void Transform::setDoc (QByteArray doc) {
+	 this->doc = doc;
+}
+
+void Transform::setXsl (QByteArray xsl) {
+	 this->xsl = xsl;
+}
+
+QByteArray Transform::toByteArray () {
+	/* Ne rien faire si la source est vide */
+	if (doc.isNull()) return QByteArray("");
+
+	/* Initialiser libxml & libxslt */
+	xmlSubstituteEntitiesDefault(1);
+	xmlLoadExtDtdDefaultValue = 1;
+
+	/* Charger la feuille de style XSL dans libXml (on ne peut pas passer directement par le type Xml de Qt) 
+	 * On s'assure que la feuille ne comporte aucun caractere autre que Ascii (les autres caracteres tels
+	 * que les caracteres internationaux ont une traduction Ascii en XML...)
+	 */
+	xmlDocPtr xslPtr = xmlParseMemory (QString(xsl).toAscii(), strlen(QString(xsl).toAscii()) * sizeof(char));
+	/* Charger la feuille dans libXslt */
+	xsltStylesheetPtr stylesheet = xsltParseStylesheetDoc(xslPtr);
+	xmlFree(xslPtr);
+	
+	/* Charger le document a transformer dans libXml */
+	xmlDocPtr docPtr = xmlParseMemory (QString(doc).toAscii(), strlen(QString(doc).toAscii()) * sizeof(char));
+	
+	/* Transformer le document selon la feuille de style chargee precedemment */
+	xmlDocPtr resPtr = xsltApplyStylesheet(stylesheet, docPtr, NULL);
+	xmlFree(docPtr);
+	
+	xmlChar* outXml; int outLen;
+	
+	/* Recuperer le document transforme sous la forme d'un char* */
+	xmlDocDumpMemory(resPtr, &outXml, &outLen);
+	xmlFree(resPtr);
+	
+	return QByteArray((char*) outXml);
+
 }
