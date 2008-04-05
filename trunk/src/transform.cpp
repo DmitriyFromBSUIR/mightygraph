@@ -52,6 +52,16 @@ void Transform::setXsl (QByteArray xsl) {
 	 this->xsl = xsl;
 }
 
+void Transform::addParam (QString name, QString value) {
+	paramList << name << value;
+}
+
+void Transform::addParam (QString name, int value) {
+	QString valueString;
+	valueString.setNum(value);
+	addParam(name, valueString);
+}
+
 QByteArray Transform::toByteArray () {
 	/* Ne rien faire si la source est vide */
 	if (doc.isNull()) return QByteArray("");
@@ -72,16 +82,39 @@ QByteArray Transform::toByteArray () {
 	/* Charger le document a transformer dans libXml */
 	xmlDocPtr docPtr = xmlParseMemory (QString(doc).toAscii(), strlen(QString(doc).toAscii()) * sizeof(char));
 	
+	/* Charger les parametres de la transformations */
+	
+	/* Determiner la taille de la liste avec les parametres de la transformation */
+	int paramListSize = 1;
+	if (paramList.size() != 0) {
+		paramListSize += paramList.size();
+	}
+	char *paramListChar[paramListSize];
+
+	for (int i=0; i<paramList.size(); i++) {
+		char *param = new char[ paramList.at(i).size()+1 ]; 
+		strcpy(param , paramList.at(i).toStdString().c_str());
+		paramListChar[i] = param;
+		
+	}
+
+	/* xsltApplyStylesheet attend une liste de parametres terminee par NULL */
+	paramListChar[paramListSize - 1] = NULL;
+	
 	/* Transformer le document selon la feuille de style chargee precedemment */
-	xmlDocPtr resPtr = xsltApplyStylesheet(stylesheet, docPtr, NULL);
+	xmlDocPtr resPtr = xsltApplyStylesheet(stylesheet, docPtr, (const char **)&paramListChar);
 	xmlFree(docPtr);
 	
+	/* Vider la liste temporaire (*char) des parametres */
+	for (int i=0; i<paramList.size(); i++) {
+		delete[] paramListChar[i];
+	}
 	xmlChar* outXml; int outLen;
 	
 	/* Recuperer le document transforme sous la forme d'un char* */
 	xmlDocDumpMemory(resPtr, &outXml, &outLen);
 	xmlFree(resPtr);
-	
+	qDebug((char*)outXml);
 	return QByteArray((char*) outXml);
 
 }
