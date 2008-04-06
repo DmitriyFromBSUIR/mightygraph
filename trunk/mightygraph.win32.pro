@@ -4,6 +4,7 @@ INCLUDEPATH += . /usr/local/include include/
 QT = gui core xml svg
 CONFIG += qt \
  warn_on \
+ console \
  x86 \
  debug_and_release \
 DESTDIR = bin
