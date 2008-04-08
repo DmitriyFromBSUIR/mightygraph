@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:template match="@posh" priority="1">
+<xsl:template match="@posh[.='0']" priority="1">
     <xsl:attribute name="id">5</xsl:attribute>
 </xsl:template>
 
