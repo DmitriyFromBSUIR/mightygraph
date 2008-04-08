@@ -4,5 +4,6 @@
 <actions>
 	<action text="Ajouter un sommet" path="ajouter.xsl" />
 	<action text="Modifier" path="mod.xsl" />
-	<action text="Supprimer" path="rem.xsl" />
+	<action text="Supprimer" path="supprimer.xsl" />
+	<action text="Lier" path="lier.xsl" />
 </actions>
