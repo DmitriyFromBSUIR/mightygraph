@@ -81,7 +81,7 @@ void SvgGraph::setOriginalSvgSize() {
   * @return image SVG du graphe
   */
 QByteArray SvgGraph::toSvg() {
-	Transform *tr = new Transform ();
+	Transform *tr = new Transform (); // <-- a deplacer en attribut de classe pour eviter de recharger tout a chaque fois
 	QString xslpath("convertir.xsl");
 	tr->setDoc(graphDom.toByteArray());
 	tr->loadXsl(xslpath);
@@ -272,7 +272,8 @@ void SvgGraph::xslAction (QAction *action)
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
 	tr->loadXsl(action->data().toString());
-	tr->addParam("id", lastId()+1);
+	tr->addParam("id", selectedId);
+	tr->addParam("newId", lastId()+1);
 	tr->addParam("posv", lastPosV);
 	tr->addParam("posh", lastPosH);
 	tr->addParam("value", "'XYZ'");
