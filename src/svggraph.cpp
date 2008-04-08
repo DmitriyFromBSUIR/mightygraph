@@ -267,21 +267,11 @@ void SvgGraph::xslAction (QAction *action)
 	
 	/* Pas de transformation associee a l'action : ne rien faire */
 	if (action->data().isNull()) return;
-	
-	QDomDocument xslDom;
-	
-	/* Charger le fichier de transformation */
-	QFile filexsl( action->data().toString() );
-	if (filexsl.open(QIODevice::ReadOnly)) {
-		xslDom.setContent(&filexsl);
-	} else {
-		return;
-	}
-	filexsl.close();
+
 
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
-	tr->setXsl(xslDom.toByteArray());
+	tr->loadXsl(action->data().toString());
 	tr->addParam("id", lastId()+1);
 	tr->addParam("posv", lastPosV);
 	tr->addParam("posh", lastPosH);
