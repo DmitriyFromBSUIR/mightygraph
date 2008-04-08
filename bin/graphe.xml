@@ -6,11 +6,11 @@
 	<sommet id="3" posh="50" posv="150">EF</sommet>
 	<sommet id="4" posh="100" posv="250">GH</sommet>
 
-	<liaison id="0" source="0" destination="1" />
-	<liaison id="1" source="1" destination="2" />
-	<liaison id="2" source="2" destination="3" />
-	<liaison id="3" source="3" destination="0" />
-	<liaison id="4" source="3" destination="4" />
-	<liaison id="5" source="0" destination="2" />
+	<liaison id="5" source="0" destination="1" />
+	<liaison id="6" source="1" destination="2" />
+	<liaison id="7" source="2" destination="3" />
+	<liaison id="8" source="3" destination="0" />
+	<liaison id="9" source="3" destination="4" />
+	<liaison id="10" source="0" destination="2" />
 
 </graphe>

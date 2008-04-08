@@ -7,14 +7,23 @@
 		<!-- Couche 0 - Liaisons -->
 		<g id="liaisons">
 			<xsl:for-each select="graphe/liaison">
-				<line style="stroke:black;stroke-width:2">
+				<line>
 					<xsl:variable name="source">
 						<xsl:value-of select="@source" />
 					</xsl:variable>
 					<xsl:variable name="destination">
 						<xsl:value-of select="@destination" />
 					</xsl:variable>
-					
+
+					<xsl:choose>
+						<xsl:when test="@highlighted = '1'">
+							<xsl:attribute name="style">stroke:red;stroke-width:2</xsl:attribute>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:attribute name="style">stroke:black;stroke-width:2</xsl:attribute>
+						</xsl:otherwise>
+					</xsl:choose>
+
 					<xsl:attribute name="x1">
 						<xsl:value-of select="//sommet[@id=concat($source, '')]/@posh+25" />
 					</xsl:attribute>
@@ -28,6 +37,9 @@
 					<xsl:attribute name="y2">
 						<xsl:value-of select="//sommet[@id=concat($destination, '')]/@posv+25" />
 					</xsl:attribute>
+					<xsl:attribute name="id">
+						<xsl:value-of select="concat('line_', @id)" />
+					</xsl:attribute>
 				</line>
 			</xsl:for-each>
 		</g>
@@ -35,9 +47,20 @@
 		<!-- Couche 1 - Rectangles -->
 		<g id="sommets">
 			<xsl:for-each select="graphe/sommet">
-				<rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2">
+				<rect width="50" height="50" fill="white">
+					<xsl:choose>
+						<xsl:when test="@highlighted = '1'">
+							<xsl:attribute name="style">stroke:red;stroke-width:2</xsl:attribute>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:attribute name="style">stroke:black;stroke-width:2</xsl:attribute>
+						</xsl:otherwise>
+					</xsl:choose>
 					<xsl:attribute name="x"><xsl:value-of select="@posh" /></xsl:attribute>
 					<xsl:attribute name="y"><xsl:value-of select="@posv" /></xsl:attribute>
+					<xsl:attribute name="id">
+						<xsl:value-of select="concat('rect_', @id)" />
+					</xsl:attribute>
 				</rect>
 			</xsl:for-each>
 		</g>
@@ -46,6 +69,14 @@
 		<g id="texte">
 			<xsl:for-each select="graphe/sommet">
 				<text>
+					<xsl:choose>
+						<xsl:when test="@highlighted = '1'">
+							<xsl:attribute name="style">fill:red;</xsl:attribute>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:attribute name="style">fill:black;</xsl:attribute>
+						</xsl:otherwise>
+					</xsl:choose>
 					<xsl:attribute name="x"><xsl:value-of select="@posh + 15" /></xsl:attribute>
 					<xsl:attribute name="y"><xsl:value-of select="@posv + 30" /></xsl:attribute>
 					<xsl:value-of select="." />

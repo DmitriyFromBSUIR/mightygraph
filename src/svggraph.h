@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
 
- * Foobar is distributed in the hope that it will be useful,
+ * MightyGraph is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -44,14 +44,20 @@ class SvgGraph : public QSvgWidget
 	
 	protected:
 	void popupMenu(QPoint pos);
+	void select();
+	int lastId ();
+	void highlight(int id);
+	void unhighlight(int id);
+	void unhighlightAll();
 	void mousePressEvent(QMouseEvent *e);
 	
 	private:
 	QWidget *parent;
 	QDomDocument graphDom;
+	QDomDocument svgGraphDom;
 	/* lastPosH,lastPosY : position de la souris lors du dernier clic */
-	int svgWidth, svgHeight, lastPosH, lastPosV;
-
+	int svgWidth, svgHeight, lastPosH, lastPosV, selectedId;
+	void loadFile (QString path);
 	void update ();
 };
 #endif

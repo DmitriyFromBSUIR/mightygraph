@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" x="0" y="0" width="500" height="500" id="graphe">
+ <g id="liaisons">
+  <line style="stroke:black;stroke-width:2" x1="75" y1="75" x2="175" y2="75" id="line_5"/>
+  <line style="stroke:black;stroke-width:2" x1="175" y1="75" x2="175" y2="175" id="line_6"/>
+  <line style="stroke:black;stroke-width:2" x1="175" y1="175" x2="75" y2="175" id="line_7"/>
+  <line style="stroke:black;stroke-width:2" x1="75" y1="175" x2="75" y2="75" id="line_8"/>
+  <line style="stroke:black;stroke-width:2" x1="75" y1="175" x2="125" y2="275" id="line_9"/>
+  <line style="stroke:black;stroke-width:2" x1="75" y1="75" x2="175" y2="175" id="line_10"/>
+ </g>
+ <g id="sommets">
+  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="50" y="50" id="rect_0"/>
+  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="150" y="50" id="rect_1"/>
+  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="150" y="150" id="rect_2"/>
+  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="50" y="150" id="rect_3"/>
+  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="100" y="250" id="rect_4"/>
+ </g>
+ <g id="texte">
+  <text x="65" y="80">IJ</text>
+  <text x="165" y="80">AB</text>
+  <text x="165" y="180">CD</text>
+  <text x="65" y="180">EF</text>
+  <text x="115" y="280">GH</text>
+ </g>
+</svg>

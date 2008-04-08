@@ -2,12 +2,16 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+<xsl:param name="id">-2</xsl:param>
 <xsl:param name="posh">100</xsl:param>
 <xsl:param name="posv">100</xsl:param>
 <xsl:param name="value">DEFAULT</xsl:param>
 
 <xsl:template match="/graphe/*[1]" priority="1">
-	<sommet id="5">
+	<sommet>
+		<xsl:attribute name="id">
+			<xsl:value-of select="$id" />
+		</xsl:attribute>
 		<xsl:attribute name="posh">
 			<xsl:value-of select="$posh" />
 		</xsl:attribute>
