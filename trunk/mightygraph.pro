@@ -6,8 +6,7 @@ CONFIG += qt \
  warn_on \
  console \
  x86 \
- debug_and_release \
- ppc
+ debug_and_release
 DESTDIR = bin
 OBJECTS_DIR = build
 MOC_DIR = build

@@ -36,7 +36,9 @@ class Transform {
 	void addParam (QString name, int value);
 	QByteArray toByteArray ();
 	QByteArray toByteArray2 ();
+
 	private:
+	
 	QByteArray doc;
 	QByteArray xsl;
 	QStringList paramList;

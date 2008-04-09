@@ -32,6 +32,7 @@ SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 	svgWidth = svgHeight = lastPosH = lastPosV = 0;
 	selectedId = -1;
 	loadFile("default.xml");
+	nbt = 0;
 }
 
 /**
@@ -86,7 +87,7 @@ QByteArray SvgGraph::toSvg() {
 	tr->setDoc(graphDom.toByteArray());
 	tr->loadXsl(xslpath);
 	QByteArray res (tr->toByteArray());
-	delete tr;
+	nbt++; delete tr;
 	return res;
 }
 
@@ -115,7 +116,8 @@ void SvgGraph::popupMenu(QPoint pos)
 		menuTitle->setDisabled(1); /* Griser le titre du menu */
 		menu.addSeparator();
 	}
-	
+	QString nbtString; nbtString.setNum(nbt);
+	menu.addAction(nbtString);
 	menu.addAction("Ouvrir", this, SLOT(open()));
 	menu.addSeparator();
 	
@@ -164,7 +166,7 @@ void SvgGraph::select()
 	} else {
 		selectedId = -1;
 	}
-	delete tr;
+	nbt++; delete tr;
 }
 
 int SvgGraph::lastId ()
@@ -175,7 +177,7 @@ int SvgGraph::lastId ()
 	QByteArray idListXml(tr->toByteArray());
 	QDomDocument idListDom; idListDom.setContent(idListXml);
 	int id = idListDom.elementsByTagName("id").at(0).toElement().text().toInt();
-	delete tr;
+	nbt++; delete tr;
 	return id;
 }
 
@@ -187,7 +189,7 @@ void SvgGraph::highlight (int id)
 	tr->addParam("id", id);
 	graphDom.setContent(tr->toByteArray());
 	update();
-	delete tr;
+	nbt++; delete tr;
 }
 
 void SvgGraph::unhighlight (int id)
@@ -198,7 +200,7 @@ void SvgGraph::unhighlight (int id)
 	tr->addParam("id", id);
 	graphDom.setContent(tr->toByteArray());
 	update();
-	delete tr;
+	nbt++; delete tr;
 }
 
 void SvgGraph::unhighlightAll ()
@@ -208,12 +210,32 @@ void SvgGraph::unhighlightAll ()
 	tr->loadXsl("unhighlightall.xsl");
 	graphDom.setContent(tr->toByteArray());
 	update();
-	delete tr;
+	nbt++; delete tr;
 }
 
 /**
   * Gestion de la souris
   */
+void SvgGraph::mouseMoveEvent(QMouseEvent *e)
+{
+	if (lastPosH != e->x() || lastPosV != e->y())
+		{
+			int diffX = (e->x() * originalSvgSize().width() / size().width()) - lastPosH;
+			int diffY = (e->y() * originalSvgSize().height() / size().height()) - lastPosV;
+			
+			Transform *tr = new Transform;
+			tr->setDoc(graphDom.toByteArray());
+			tr->loadXsl("move.xsl");
+			tr->addParam("diffx", diffX);
+			tr->addParam("diffy", diffY);
+			graphDom.setContent(tr->toByteArray());
+			update();
+			nbt++; delete tr;
+		}
+	lastPosH = e->x() * originalSvgSize().width() / size().width();
+	lastPosV = e->y() * originalSvgSize().height() / size().height();
+}
+  
 void SvgGraph::mousePressEvent(QMouseEvent *e)
 {
 	/* Enregister la position lors du dernier clic (par rapport a l'image non agrandie) */
@@ -224,7 +246,7 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 	if (e->button() == Qt::RightButton)
 	{
 		if (selectedId != -1) {
-			unhighlightAll();
+			//unhighlightAll();
 			highlight(selectedId); /* Surbriller l'element */	
 		}
 		popupMenu(e->globalPos());
@@ -261,10 +283,7 @@ void SvgGraph::update ()
 }
 
 void SvgGraph::xslAction (QAction *action)
-{
-	/* Deselectionner tous les elements selectionnes */
-	unhighlightAll();
-	
+{	
 	/* Pas de transformation associee a l'action : ne rien faire */
 	if (action->data().isNull()) return;
 
@@ -279,5 +298,8 @@ void SvgGraph::xslAction (QAction *action)
 	tr->addParam("value", "'XYZ'");
 	graphDom.setContent(tr->toByteArray());
 	update();
-	delete tr;	
+	nbt++; delete tr;
+	
+	/* Deselectionner tous les elements selectionnes */
+	unhighlightAll();
 }

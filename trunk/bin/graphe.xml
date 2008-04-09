@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <graphe>
-	<sommet id="0" posh="50" posv="50">IJ</sommet>
+	<sommet id="0" posh="50" posv="50" highlighted="1">IJ</sommet>
 	<sommet id="1" posh="150" posv="50">AB</sommet>
-	<sommet id="2" posh="150" posv="150">CD</sommet>
+	<sommet id="2" posh="150" posv="150" highlighted="1">CD</sommet>
 	<sommet id="3" posh="50" posv="150">EF</sommet>
 	<sommet id="4" posh="100" posv="250">GH</sommet>
 

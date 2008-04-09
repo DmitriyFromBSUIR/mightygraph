@@ -114,7 +114,7 @@ QByteArray Transform::toByteArray () {
 	/* Recuperer le document transforme sous la forme d'un char* */
 	xmlDocDumpMemory(resPtr, &outXml, &outLen);
 	xmlFree(resPtr);
-	qDebug((char*)outXml);
+	//qDebug((char*)outXml);
 	return QByteArray((char*) outXml);
 
 }
