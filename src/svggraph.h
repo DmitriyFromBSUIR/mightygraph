@@ -49,9 +49,11 @@ class SvgGraph : public QSvgWidget
 	void highlight(int id);
 	void unhighlight(int id);
 	void unhighlightAll();
+	void mouseMoveEvent(QMouseEvent *e);
 	void mousePressEvent(QMouseEvent *e);
 	
 	private:
+	int nbt; // Nombre de transformations
 	QWidget *parent;
 	QDomDocument graphDom;
 	QDomDocument svgGraphDom;
