@@ -6,13 +6,9 @@
 
 <xsl:template match="*|@*">
 	<xsl:copy>
-		<xsl:apply-templates select="text()|*|@*"/>
-	</xsl:copy>
-</xsl:template>
-
-<xsl:template match="*[@id = $id]">
-	<xsl:copy>
-		<xsl:attribute name="highlighted">0</xsl:attribute>
+		<xsl:if test="@id = $id">
+			<xsl:attribute name="highlighted">0</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates select="text()|*|@*"/>
 	</xsl:copy>
 </xsl:template>
