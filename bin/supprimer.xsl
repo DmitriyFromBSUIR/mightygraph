@@ -5,12 +5,11 @@
 <xsl:param name="id">0</xsl:param>
 
 <xsl:template match="*|@*">
-	<xsl:copy>
-		<xsl:apply-templates select="text()|*|@*"/>
-	</xsl:copy>
-</xsl:template>
-
-<xsl:template match="*[@id = $id or @source = $id or @destination = $id]">
+	<xsl:if test="not(@id = $id or @source = $id or @destination = $id)">
+		<xsl:copy>
+			<xsl:apply-templates select="text()|*|@*"/>
+		</xsl:copy>
+	</xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>
