@@ -63,9 +63,10 @@ void Transform::addParam (QString name, int value) {
 }
 
 QByteArray Transform::toByteArray () {
+	
 	/* Ne rien faire si la source est vide */
 	if (doc.isNull()) return QByteArray("");
-
+	
 	/* Initialiser libxml & libxslt */
 	xmlSubstituteEntitiesDefault(1);
 	xmlLoadExtDtdDefaultValue = 1;
@@ -77,7 +78,6 @@ QByteArray Transform::toByteArray () {
 	xmlDocPtr xslPtr = xmlParseMemory (QString(xsl).toAscii(), strlen(QString(xsl).toAscii()) * sizeof(char));
 	/* Charger la feuille dans libXslt */
 	xsltStylesheetPtr stylesheet = xsltParseStylesheetDoc(xslPtr);
-	xmlFree(xslPtr);
 	
 	/* Charger le document a transformer dans libXml */
 	xmlDocPtr docPtr = xmlParseMemory (QString(doc).toAscii(), strlen(QString(doc).toAscii()) * sizeof(char));
@@ -92,10 +92,9 @@ QByteArray Transform::toByteArray () {
 	char *paramListChar[paramListSize];
 
 	for (int i=0; i<paramList.size(); i++) {
-		char *param = new char[ paramList.at(i).size()+1 ]; 
+		char *param = new char [ paramList.at(i).size()+1 ];
 		strcpy(param , paramList.at(i).toStdString().c_str());
 		paramListChar[i] = param;
-		
 	}
 
 	/* xsltApplyStylesheet attend une liste de parametres terminee par NULL */
@@ -103,18 +102,22 @@ QByteArray Transform::toByteArray () {
 	
 	/* Transformer le document selon la feuille de style chargee precedemment */
 	xmlDocPtr resPtr = xsltApplyStylesheet(stylesheet, docPtr, (const char **)&paramListChar);
-	xmlFree(docPtr);
 	
-	/* Vider la liste temporaire (*char) des parametres */
+	
+	/* Vider la liste temporaire (char*) des parametres */
 	for (int i=0; i<paramList.size(); i++) {
 		delete[] paramListChar[i];
 	}
 	xmlChar* outXml; int outLen;
-	
+
 	/* Recuperer le document transforme sous la forme d'un char* */
 	xmlDocDumpMemory(resPtr, &outXml, &outLen);
-	xmlFree(resPtr);
-	//qDebug((char*)outXml);
-	return QByteArray((char*) outXml);
+
+	QByteArray res((const char*) outXml);
+	
+	/* Vider la memoire */
+	xmlFreeDoc(docPtr); xmlFreeDoc(resPtr); xsltFreeStylesheet(stylesheet); xmlFree(outXml);
+
+	return res;
 
 }

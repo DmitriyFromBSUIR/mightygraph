@@ -24,7 +24,8 @@
 #include <QDomDocument>
  #include <QStringList>
 using namespace std;
-class Transform {
+class Transform : public QObject {
+	Q_OBJECT
 	public:
 	Transform ();
 
@@ -35,7 +36,6 @@ class Transform {
 	void addParam (QString name, QString value);
 	void addParam (QString name, int value);
 	QByteArray toByteArray ();
-	QByteArray toByteArray2 ();
 
 	private:
 	
