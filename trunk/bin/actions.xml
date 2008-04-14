@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="convertir.xsl"?>
 
 <actions>
 	<action text="Ajouter un sommet" path="ajouter.xsl" />

@@ -1,0 +1,22 @@
+<?xml version='1.0'?>
+<graphe>
+ <liaison destination="14" id="15" source="0" />
+ <liaison destination="13" id="16" source="0" />
+ <sommet posv="40" posh="324" id="0" >Lorem ipsum</sommet>
+ <liaison destination="13" id="18" source="1" />
+ <liaison destination="14" id="19" source="1" />
+ <liaison destination="4" id="20" source="1" />
+ <sommet posv="214" posh="515" id="1" >Texte1</sommet>
+ <liaison destination="4" id="12" source="2" />
+ <sommet posv="311" posh="298" id="2" >CD</sommet>
+ <liaison destination="13" id="17" source="3" />
+ <sommet posv="192" posh="124" id="3" >EF</sommet>
+ <liaison destination="13" id="21" source="4" />
+ <sommet posv="389" posh="457" id="4" >GH</sommet>
+ <liaison posv="NaN" posh="NaN" destination="1" id="5" source="0" />
+ <liaison destination="2" id="6" source="1" />
+ <liaison destination="3" id="7" source="2" />
+ <liaison destination="0" id="8" source="3" />
+ <sommet posv="193" posh="322" id="13" >XYZ</sommet>
+ <sommet posv="90" posh="545" id="14" >XYZ</sommet>
+</graphe>

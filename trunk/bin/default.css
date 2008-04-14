@@ -1,0 +1,24 @@
+/* Style par defaut */
+svg {
+	background-color: white;
+	}
+
+.selectedText {
+	fill: red;
+	}
+
+.unselectedText {
+	fill: black;
+	}
+
+.selected {
+	fill: white;
+	stroke: red;
+	stroke-width: 2;
+	}
+	
+.unselected {
+	fill: white;
+	stroke: black;
+	stroke-width: 2;
+	}

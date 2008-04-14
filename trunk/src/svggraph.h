@@ -40,9 +40,16 @@ class SvgGraph : public QSvgWidget
 
 	public slots:
 	void open();
+	void newDoc();
+	void save();
+	void saveAs();
+	void themesMenu();
+	void setTheme (QAction *action);
 	void xslAction (QAction *action);
 	
 	protected:
+	QString path;
+	bool saved;
 	void popupMenu(QPoint pos);
 	void select();
 	int lastId ();
@@ -57,6 +64,7 @@ class SvgGraph : public QSvgWidget
 	QWidget *parent;
 	QDomDocument graphDom;
 	QDomDocument svgGraphDom;
+	QString themePath;
 	/* lastPosH,lastPosY : position de la souris lors du dernier clic */
 	int svgWidth, svgHeight, lastPosH, lastPosV, selectedId;
 	void loadFile (QString path);

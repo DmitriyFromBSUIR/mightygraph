@@ -7,10 +7,9 @@
 <xsl:template match="*|@*">
 	<xsl:copy>
 		<xsl:if test="@id = $id">
-			<xsl:attribute name="highlighted">1</xsl:attribute>
+				<xsl:attribute name="highlighted">1</xsl:attribute>
 		</xsl:if>
 		<xsl:apply-templates select="text()|*|@*"/>
 	</xsl:copy>
 </xsl:template>
-
 </xsl:stylesheet>

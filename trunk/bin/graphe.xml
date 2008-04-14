@@ -1,16 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0'?>
 <graphe>
-	<sommet id="0" posh="50" posv="50" highlighted="1">IJ</sommet>
-	<sommet id="1" posh="150" posv="50">AB</sommet>
-	<sommet id="2" posh="150" posv="150" highlighted="1">CD</sommet>
-	<sommet id="3" posh="50" posv="150">EF</sommet>
-	<sommet id="4" posh="100" posv="250">GH</sommet>
-
-	<liaison id="5" source="0" destination="1" />
-	<liaison id="6" source="1" destination="2" />
-	<liaison id="7" source="2" destination="3" />
-	<liaison id="8" source="3" destination="0" />
-	<liaison id="9" source="3" destination="4" />
-	<liaison id="10" source="0" destination="2" />
-
+ <sommet highlighted="1" posv="40" posh="87" id="0" >Lorem ipsum</sommet>
+ <liaison destination="13" id="15" source="1" />
+ <liaison destination="2" id="18" source="1" />
+ <sommet posv="47" posh="534" id="1" >Texte1</sommet>
+ <liaison destination="4" id="12" source="2" />
+ <sommet posv="302" posh="465" id="2" >CD</sommet>
+ <liaison destination="4" id="21" source="3" />
+ <sommet posv="170" posh="275" id="3" >EF</sommet>
+ <sommet posv="302" posh="275" id="4" >GH</sommet>
+ <liaison posv="NaN" posh="NaN" destination="1" id="5" source="0" />
+ <liaison destination="0" id="8" source="3" />
+ <sommet posv="209" posh="683" id="13" >XYZ</sommet>
 </graphe>

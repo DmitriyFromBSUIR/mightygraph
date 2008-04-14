@@ -21,10 +21,15 @@
 
 #include <QApplication>
 #include "mainwindowimpl.h"
+#include "transform.h"
 //
 int main(int argc, char ** argv)
 {
 	QApplication app( argc, argv );
+
+	/* Initialiser le compteur de transformations XSL */
+	Transform::transfCounter = 0;
+
 	MainWindowImpl win;
 	win.show(); 
 	app.connect( &app, SIGNAL( lastWindowClosed() ), &app, SLOT( quit() ) );
