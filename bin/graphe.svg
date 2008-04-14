@@ -1,25 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" x="0" y="0" width="500" height="500" id="graphe">
- <g id="liaisons">
-  <line style="stroke:black;stroke-width:2" x1="75" y1="75" x2="175" y2="75" id="line_5"/>
-  <line style="stroke:black;stroke-width:2" x1="175" y1="75" x2="175" y2="175" id="line_6"/>
-  <line style="stroke:black;stroke-width:2" x1="175" y1="175" x2="75" y2="175" id="line_7"/>
-  <line style="stroke:black;stroke-width:2" x1="75" y1="175" x2="75" y2="75" id="line_8"/>
-  <line style="stroke:black;stroke-width:2" x1="75" y1="175" x2="125" y2="275" id="line_9"/>
-  <line style="stroke:black;stroke-width:2" x1="75" y1="75" x2="175" y2="175" id="line_10"/>
- </g>
- <g id="sommets">
-  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="50" y="50" id="rect_0"/>
-  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="150" y="50" id="rect_1"/>
-  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="150" y="150" id="rect_2"/>
-  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="50" y="150" id="rect_3"/>
-  <rect width="50" height="50" fill="white" style="stroke:black;stroke-width:2" x="100" y="250" id="rect_4"/>
- </g>
- <g id="texte">
-  <text x="65" y="80">IJ</text>
-  <text x="165" y="80">AB</text>
-  <text x="165" y="180">CD</text>
-  <text x="65" y="180">EF</text>
-  <text x="115" y="280">GH</text>
- </g>
-</svg>
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="default.css"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" x="0" y="0" width="800" height="500" id="graphe"><g id="liaisons"><line class="unselected" x1="NaN" y1="75" x2="397" y2="237" id="line_11"/><line class="unselected" x1="NaN" y1="99" x2="72" y2="192" id="line_10"/><line class="unselected" x1="NaN" y1="75" x2="335" y2="99" id="line_5"/><line class="unselected" x1="NaN" y1="99" x2="397" y2="237" id="line_6"/><line class="unselected" x1="NaN" y1="237" x2="72" y2="192" id="line_7"/><line class="unselected" x1="NaN" y1="192" x2="74" y2="75" id="line_8"/><line class="unselected" x1="NaN" y1="192" x2="125" y2="275" id="line_9"/></g><g id="sommets"><rect height="50" width="330" class="selected" x="49" y="50" id="rect_0"/><text class="selectedText" x="64" y="80">
+  Lorem ipsum
+  dolor sit amet
+ </text><rect height="50" width="50" class="unselected" x="310" y="74" id="rect_1"/><text class="unselectedText" x="325" y="104">AB</text><rect height="50" width="50" class="unselected" x="372" y="212" id="rect_2"/><text class="unselectedText" x="387" y="242">CD</text><rect height="50" width="50" class="unselected" x="47" y="167" id="rect_3"/><text class="unselectedText" x="62" y="197">EF</text><rect height="50" width="50" class="unselected" x="100" y="250" id="rect_4"/><text class="unselectedText" x="115" y="280">GH</text></g></svg>

@@ -29,6 +29,8 @@ class Transform : public QObject {
 	public:
 	Transform ();
 
+	static int transfCounter;
+	
 	void loadDoc (QString docPath);
 	void loadXsl (QString xslPath);
 	void setDoc (QByteArray doc);

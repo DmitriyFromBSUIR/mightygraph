@@ -11,8 +11,13 @@ DESTDIR = bin
 OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
-FORMS = ui/mainwindow.ui
-HEADERS = src/mainwindowimpl.h src/svggraph.h src/transform.h
-SOURCES = src/mainwindowimpl.cpp src/main.cpp src/svggraph.cpp src/transform.cpp
+FORMS = ui/mainwindow.ui ui/preferences.ui
+HEADERS = src/mainwindowimpl.h src/svggraph.h src/transform.h src/preferencesimpl.h
+SOURCES = src/mainwindowimpl.cpp \
+ src/main.cpp \
+ src/svggraph.cpp \
+ src/transform.cpp \
+ src/preferencesimpl.cpp
+RESOURCES = ui/ressources.qrc
 ICON = theapp.icns
 LIBS += -lxml2 -lxslt

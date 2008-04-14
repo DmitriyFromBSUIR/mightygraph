@@ -26,13 +26,14 @@
 #include <QtSvg/QSvgWidget>
 #include "svggraph.h"
 #include "transform.h"
+#include "preferencesimpl.h"
 
 SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 	this->parent = parent;
 	svgWidth = svgHeight = lastPosH = lastPosV = 0;
-	selectedId = -1;
+	selectedId = -1; saved = 1;
+	nbt = 0; themePath = "default.css";
 	loadFile("default.xml");
-	nbt = 0;
 }
 
 /**
@@ -43,7 +44,83 @@ void SvgGraph::open()
 {
 	QString path;
 	path = QFileDialog::getOpenFileName(this, "Ouvrir...", QString::null, "Graphes (*.xml)");
-	loadFile(path);
+	if (!path.isNull()) {
+		this->path = path;
+		loadFile(path);
+	}
+		PreferencesImpl prefWin;
+	prefWin.show();
+}
+
+void SvgGraph::newDoc()
+{
+	if (!saved)
+	{
+		int saveDialogRes = QMessageBox::question(this, "Enregistrer",
+		"Souhaitez-vous enregistrer les modifications ?", QMessageBox::Save,
+		QMessageBox::Cancel, QMessageBox::Discard);
+		if (saveDialogRes == QMessageBox::Cancel) return; /* Annuler */
+		if (saveDialogRes == QMessageBox::Save) save();   /* Enregistrer */
+	}
+	loadFile("default.xml");
+	path = QString(); /* Reinitialiser le chemin d'acces*/
+}
+
+void SvgGraph::save()
+{
+	if (this->path.isNull()) {
+		QString path;
+		path = QFileDialog::getSaveFileName(this, "Enregistrer sous...", QString::null, "Graphes (*.xml)");
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
+		this->path = path;
+	}
+	/* Enregistrer le fichier XML */
+	QFile filesrc(path);
+	if (filesrc.open(QIODevice::WriteOnly)) {
+		filesrc.write(graphDom.toByteArray());
+		saved = true; /* Le fichier vient d'etre enregistre */
+	}
+	filesrc.close();
+}
+
+void SvgGraph::saveAs()
+{
+	QString oldPath = path; /* Sauvegarder l'ancien chemin */
+	path = QString(); /* Mettre a Null le chemin d'acces (provoquera l'ouverture du dialogue d'enregistrement) */
+	save();
+	if (path.isNull()) path = oldPath; /* L'utilisateur a appuye sur Annuler, restaurer l'ancien chemin */
+}
+
+void SvgGraph::themesMenu()
+{
+	QMenu cssMenu(this);
+	connect(&cssMenu, SIGNAL(triggered(QAction *)), this, SLOT(setTheme(QAction *)));
+	
+	/* Charger la liste des themes disponibles */
+	QFile file("themes.xml");
+	QDomDocument themes;
+	if (!file.open(QIODevice::ReadOnly))
+		return;
+	if (!themes.setContent(&file)) {
+		file.close();
+		return;
+	}
+	file.close();
+	
+	QDomNodeList themesNodes = themes.elementsByTagName("theme");
+	
+	for (int i=0; i<themesNodes.count(); i++)
+	{
+		QString text, path;
+		QDomNode thm = themesNodes.at(i);
+		text = thm.toElement().attribute("text");
+		path = thm.toElement().attribute("path");
+		QAction *action = cssMenu.addAction(text);
+		action->setData(path);
+	}
+	
+	/* Afficher le menu */
+	cssMenu.exec(QCursor::pos ());
 }
 
 void SvgGraph::loadFile(QString path)
@@ -69,11 +146,11 @@ QSize SvgGraph::originalSvgSize() {
 }
 
 /**
-  * Modifie la taille du graphe Ã  un multiple de sa taille par dÃ©faut
+  * Modifie la taille du graphe Ã  un multiple de sa taille par dÃ©faut
   */
 void SvgGraph::setOriginalSvgSize() {
 	QSize newSize (originalSvgSize());
-	newSize.scale(size(), Qt::KeepAspectRatio);
+	newSize.scale(parent->size(), Qt::KeepAspectRatio);
 	resize(newSize);
 }
 
@@ -86,6 +163,7 @@ QByteArray SvgGraph::toSvg() {
 	QString xslpath("convertir.xsl");
 	tr->setDoc(graphDom.toByteArray());
 	tr->loadXsl(xslpath);
+	tr->addParam("theme","'" + themePath + "'");
 	QByteArray res (tr->toByteArray());
 	nbt++; delete tr;
 	return res;
@@ -100,7 +178,8 @@ QDomDocument SvgGraph::getGraphDom() {
 }
 
 /**
-  * Menu popup
+  * Affiche le menu contextuel
+  * @param pos Position où le menu doit être affiché
   */
 void SvgGraph::popupMenu(QPoint pos)
 {
@@ -117,7 +196,7 @@ void SvgGraph::popupMenu(QPoint pos)
 		menu.addSeparator();
 	}
 	QString nbtString; nbtString.setNum(nbt);
-	menu.addAction(nbtString);
+	//menu.addAction(nbtString);
 	menu.addAction("Ouvrir", this, SLOT(open()));
 	menu.addSeparator();
 	
@@ -148,7 +227,7 @@ void SvgGraph::popupMenu(QPoint pos)
 	menu.exec(pos);
 }
 /**
-  * Selectionner un element
+  * Recalcule la liste des éléments sélectionnés
   */
 void SvgGraph::select()
 {
@@ -168,7 +247,10 @@ void SvgGraph::select()
 	}
 	nbt++; delete tr;
 }
-
+/**
+  * Retourne l'ID du dernier élément
+  * @return ID du dernier élément
+  */
 int SvgGraph::lastId ()
 {
 	Transform *tr = new Transform;
@@ -181,6 +263,11 @@ int SvgGraph::lastId ()
 	return id;
 }
 
+/**
+  * Sélectionne un élément
+  * @param id L'id de l'élément
+  * @see unhighlight()
+  */
 void SvgGraph::highlight (int id)
 {
 	Transform *tr = new Transform;
@@ -192,6 +279,11 @@ void SvgGraph::highlight (int id)
 	nbt++; delete tr;
 }
 
+/**
+  * Déselectionne un élément
+  * @param id L'id de l'élément
+  * @see highlight()
+  */
 void SvgGraph::unhighlight (int id)
 {
 	Transform *tr = new Transform;
@@ -203,6 +295,10 @@ void SvgGraph::unhighlight (int id)
 	nbt++; delete tr;
 }
 
+/**
+  * Déselectionne tous les éléments
+  * @see unhighlight() highlight()
+  */
 void SvgGraph::unhighlightAll ()
 {
 	Transform *tr = new Transform;
@@ -214,10 +310,17 @@ void SvgGraph::unhighlightAll ()
 }
 
 /**
-  * Gestion de la souris
+  * Evénement de gestion du mouvement de la souris
+  * Cet événement correspond à un mouvent de la souris.
+  * Il incorpore notamment la gestion du déplacement
+  * de la souris.
+  * @param e Evénement
   */
 void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 {
+	if (selectedId == -1) {
+		e->accept(); return;
+	}
 	if (lastPosH != e->x() || lastPosV != e->y())
 		{
 			int diffX = (e->x() * originalSvgSize().width() / size().width()) - lastPosH;
@@ -234,8 +337,19 @@ void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 		}
 	lastPosH = e->x() * originalSvgSize().width() / size().width();
 	lastPosV = e->y() * originalSvgSize().height() / size().height();
+	
+	/* Signaler que le graphe a ete modifie */
+	saved = 0;
+	
+	e->accept(); return;
 }
-  
+
+/**
+  * Evénement de gestion des boutons de la souris
+  * Cet événement correspond à un appui sur un bouton de la souris.
+  * Il incorpore notamment la gestion du menu contextuel.
+  * @param e Evénement
+  */
 void SvgGraph::mousePressEvent(QMouseEvent *e)
 {
 	/* Enregister la position lors du dernier clic (par rapport a l'image non agrandie) */
@@ -260,10 +374,7 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 		if (selectedId != -1) {
 			highlight(selectedId);
 		}
-		/* A REMPLACER */
-		//QString t; t.setNum(selectedId);
-		//QMessageBox::information(this, "ID", "ID=" + t);
-		/* FIN */
+
 		e->accept(); return;
 	}
 	
@@ -279,14 +390,19 @@ void SvgGraph::update ()
 	svgHeight = svgGraphDom.elementsByTagName("svg").at(0).toElement().attribute("height").toInt();
 	
 	load(svgGraph);
-	setOriginalSvgSize();
+}
+
+void SvgGraph::setTheme (QAction *action)
+{	
+	if (action->data().isNull()) return;
+	themePath = action->data().toString();
+	update();
 }
 
 void SvgGraph::xslAction (QAction *action)
 {	
 	/* Pas de transformation associee a l'action : ne rien faire */
 	if (action->data().isNull()) return;
-
 
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
@@ -302,4 +418,7 @@ void SvgGraph::xslAction (QAction *action)
 	
 	/* Deselectionner tous les elements selectionnes */
 	unhighlightAll();
+	
+	/* Signaler que le graphe a ete modifie */
+	saved = 0;
 }

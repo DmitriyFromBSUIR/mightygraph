@@ -26,6 +26,8 @@
 
 Transform::Transform() { }
 
+int Transform::transfCounter;
+
 void Transform::loadDoc (QString docPath) {
 	/* Charger le document */
 	QFile docFile(docPath);
@@ -66,6 +68,9 @@ QByteArray Transform::toByteArray () {
 	
 	/* Ne rien faire si la source est vide */
 	if (doc.isNull()) return QByteArray("");
+	
+	/* Incrementer le compteur de transformations */
+	Transform::transfCounter++;
 	
 	/* Initialiser libxml & libxslt */
 	xmlSubstituteEntitiesDefault(1);
@@ -117,7 +122,6 @@ QByteArray Transform::toByteArray () {
 	
 	/* Vider la memoire */
 	xmlFreeDoc(docPtr); xmlFreeDoc(resPtr); xsltFreeStylesheet(stylesheet); xmlFree(outXml);
-
 	return res;
 
 }

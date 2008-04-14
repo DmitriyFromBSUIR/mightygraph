@@ -1,0 +1,31 @@
+/* Style par defaut */
+svg {
+	}
+
+.selectedText {
+	fill: blue;
+	}
+
+.unselectedText {
+	fill: black;
+	}
+
+.selected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:1;
+	stroke: blue;
+	stroke-opacity:0.6;
+	stroke-linejoin:round;
+	stroke-width: 15;
+	}
+	
+.unselected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:0.7;
+	stroke: black;
+	stroke-opacity:0.2;
+	stroke-linejoin:round;
+	stroke-width: 7;
+	}

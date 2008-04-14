@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<themes>
+	<theme text="Par défaut" path="default.css" />
+	<theme text="Futuriste" path="futuriste.css" />
+	<theme text="Futuriste orange" path="futuriste_orange.css" />
+</themes>
