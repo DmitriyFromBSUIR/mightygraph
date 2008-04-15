@@ -43,6 +43,7 @@ class SvgGraph : public QSvgWidget
 	void newDoc();
 	void save();
 	void saveAs();
+	void exportGraph();
 	void themesMenu();
 	void setTheme (QAction *action);
 	void xslAction (QAction *action);

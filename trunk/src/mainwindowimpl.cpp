@@ -33,7 +33,7 @@ MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f)
 	toolBar->addAction (QIcon(":/toolbar/icons/document-new.png"), "Nouveau", graphImg, SLOT(newDoc()));
 	toolBar->addAction (QIcon(":/toolbar/icons/document-open.png"), "Ouvrir", graphImg, SLOT(open()));
 	toolBar->addAction (QIcon(":/toolbar/icons/document-save.png"), "Enregistrer", graphImg, SLOT(save()));
-	toolBar->addAction (QIcon(":/toolbar/icons/image-x-genericL.png"), "Exporter", graphImg, SLOT(save()));
+	toolBar->addAction (QIcon(":/toolbar/icons/image-x-genericL.png"), "Exporter", graphImg, SLOT(exportGraph()));
 	toolBar->addSeparator();
 	toolBar->addAction (QIcon(":/toolbar/icons/edit-undoL.png"), "Annuler", graphImg, SLOT(save()));
 	toolBar->addAction (QIcon(":/toolbar/icons/edit-redoL.png"), "Rétablir", graphImg, SLOT(save()));
