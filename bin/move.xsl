@@ -11,7 +11,7 @@
 	</xsl:copy>
 </xsl:template>
 
-<xsl:template match="*[@highlighted = '1']">
+<xsl:template match="*[@highlighted = '1' and name() = 'sommet']">
 	<xsl:copy>
 		<xsl:attribute name="posh">
 			<xsl:value-of select="@posh +$diffx" />

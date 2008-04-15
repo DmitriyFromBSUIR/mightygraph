@@ -122,6 +122,8 @@ QByteArray Transform::toByteArray () {
 	
 	/* Vider la memoire */
 	xmlFreeDoc(docPtr); xmlFreeDoc(resPtr); xsltFreeStylesheet(stylesheet); xmlFree(outXml);
+	
+	//qDebug(res);
 	return res;
 
 }

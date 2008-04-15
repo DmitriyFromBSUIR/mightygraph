@@ -48,8 +48,6 @@ void SvgGraph::open()
 		this->path = path;
 		loadFile(path);
 	}
-		PreferencesImpl prefWin;
-	prefWin.show();
 }
 
 void SvgGraph::newDoc()
@@ -89,6 +87,52 @@ void SvgGraph::saveAs()
 	path = QString(); /* Mettre a Null le chemin d'acces (provoquera l'ouverture du dialogue d'enregistrement) */
 	save();
 	if (path.isNull()) path = oldPath; /* L'utilisateur a appuye sur Annuler, restaurer l'ancien chemin */
+}
+
+void SvgGraph::exportGraph()
+{
+	bool *ok; QString filter;
+	QString format = QInputDialog::getItem(this, "Format", "Veuillez sélectionner le format d'export :",
+						QStringList() << "Image SVG" << "PostScript" << "Document PDF", 0, false, ok);
+	QString path;
+	
+	if (format == "Document PDF")
+	{
+		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Document PDF (*.pdf)");
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
+		QPrinter prn;
+		//if (QPrintDialog(&prn, this).exec() != QDialog::Accepted) return;
+		prn.setOutputFormat(QPrinter::PdfFormat);
+		//QPageSetupDialog(&prn, this);
+		prn.setOutputFileName(path);
+		render(&prn);
+		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+	} else
+
+	if (format == "PostScript")
+	{
+		QString path;
+		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "PostScript (*.ps)");
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
+		QPrinter prn; prn.setOutputFormat(QPrinter::PostScriptFormat);
+		prn.setOutputFileName(path);
+		render(&prn);
+		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+	}
+	
+	if (format == "Image SVG")
+	{
+		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Image SVG (*.svg)");
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
+		QFile exportFile(path);
+		if (exportFile.open(QIODevice::WriteOnly)) { exportFile.write(svgGraphDom.toByteArray(2)); }
+		exportFile.close();
+		
+	}
+	QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
 void SvgGraph::themesMenu()
@@ -165,6 +209,14 @@ QByteArray SvgGraph::toSvg() {
 	tr->loadXsl(xslpath);
 	tr->addParam("theme","'" + themePath + "'");
 	QByteArray res (tr->toByteArray());
+	
+	/*if (true) TODO Verifier si le post-traitement de l'image est actif
+	{
+		tr->setDoc(res);
+		tr->loadXsl("postSvg.xsl");
+		res = tr->toByteArray();
+	}*/
+	
 	nbt++; delete tr;
 	return res;
 }
@@ -197,9 +249,9 @@ void SvgGraph::popupMenu(QPoint pos)
 	}
 	QString nbtString; nbtString.setNum(nbt);
 	//menu.addAction(nbtString);
-	menu.addAction("Ouvrir", this, SLOT(open()));
+	/*menu.addAction("Ouvrir", this, SLOT(open()));
 	menu.addSeparator();
-	
+	*/
 	/* Charger la liste des actions disponibles */
 	QFile file("actions.xml");
 	QDomDocument actions;
@@ -417,7 +469,7 @@ void SvgGraph::xslAction (QAction *action)
 	nbt++; delete tr;
 	
 	/* Deselectionner tous les elements selectionnes */
-	unhighlightAll();
+	//unhighlightAll();
 	
 	/* Signaler que le graphe a ete modifie */
 	saved = 0;
