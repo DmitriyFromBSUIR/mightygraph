@@ -18,6 +18,7 @@
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  * Paul HUYNH <paulytech AT gmail.com>
+ * Samy REVERSAT <reversat AT gmail.com>
  */
 
 #include <QtGui>
@@ -28,16 +29,47 @@
 #include "transform.h"
 #include "preferencesimpl.h"
 
+class QSystemTrayIcon;
+QSystemTrayIcon* sticon;
+
 SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 	this->parent = parent;
 	svgWidth = svgHeight = lastPosH = lastPosV = 0;
 	selectedId = -1; saved = 1;
 	nbt = 0; themePath = "default.css";
 	loadFile("default.xml");
+
+/**
+  * Création de l'icone de notification
+  */
+	sticon = new QSystemTrayIcon(this);
+	QMenu* stmenu = new QMenu(this);
+
+	QAction* actOuvrir = new QAction("Ouvrir",this);
+	QAction* actEnregistrer = new QAction("Enregistrer",this);
+	QAction* actEnregistrer_sous = new QAction("Enregistrer sous",this);
+    QAction* actQuitter = new QAction("Quitter",this);
+
+	stmenu->addAction(actOuvrir);
+	stmenu->addAction(actEnregistrer);
+	stmenu->addAction(actEnregistrer_sous);
+	stmenu->addAction(actQuitter);
+
+    connect(actOuvrir, SIGNAL(triggered()), this, SLOT(open()));
+    connect(actEnregistrer, SIGNAL(triggered()), this, SLOT(save()));
+    connect(actEnregistrer_sous, SIGNAL(triggered()), this, SLOT(saveAs()));
+    connect(actQuitter, SIGNAL(triggered()), this, SLOT(quit()));
+
+    sticon->setContextMenu(stmenu);
+
+	QIcon icon(":/toolbar/icons/pngicon.png");
+    sticon->setIcon(icon);
+
+	sticon->show();
 }
 
 /**
-  * Affiche un dialogue d'ouverture de fichier puis affiche le graphe 
+  * Affiche un dialogue d'ouverture de fichier puis affiche le graphe
   * sÃ©lectionnÃ© dans la fenÃªtre principale
   */
 void SvgGraph::open()
@@ -95,12 +127,12 @@ void SvgGraph::exportGraph()
 	QString format = QInputDialog::getItem(this, "Format", "Veuillez sélectionner le format d'export :",
 						QStringList() << "Image SVG" << "PostScript" << "Document PDF", 0, false, ok);
 	QString path;
-	
+
 	if (format == "Document PDF")
 	{
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Document PDF (*.pdf)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
-		
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
+
 		QPrinter prn;
 		//if (QPrintDialog(&prn, this).exec() != QDialog::Accepted) return;
 		prn.setOutputFormat(QPrinter::PdfFormat);
@@ -114,32 +146,51 @@ void SvgGraph::exportGraph()
 	{
 		QString path;
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "PostScript (*.ps)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
-		
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
+
 		QPrinter prn; prn.setOutputFormat(QPrinter::PostScriptFormat);
 		prn.setOutputFileName(path);
 		render(&prn);
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	}
-	
+
 	if (format == "Image SVG")
 	{
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Image SVG (*.svg)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
-		
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
+
 		QFile exportFile(path);
 		if (exportFile.open(QIODevice::WriteOnly)) { exportFile.write(svgGraphDom.toByteArray(2)); }
 		exportFile.close();
-		
+
 	}
 	QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+}
+
+void SvgGraph::impression()
+{
+    QPrinter Printer;
+    QPrintDialog *dialog = new QPrintDialog(&Printer);
+    if (dialog->exec() == QDialog::Accepted)
+    {
+     QPainter Painter;
+     Painter.begin(&Printer);
+
+     Painter.end();
+    }
+    return;
+}
+
+void SvgGraph::quit()
+{
+	exit(0);
 }
 
 void SvgGraph::themesMenu()
 {
 	QMenu cssMenu(this);
 	connect(&cssMenu, SIGNAL(triggered(QAction *)), this, SLOT(setTheme(QAction *)));
-	
+
 	/* Charger la liste des themes disponibles */
 	QFile file("themes.xml");
 	QDomDocument themes;
@@ -150,9 +201,9 @@ void SvgGraph::themesMenu()
 		return;
 	}
 	file.close();
-	
+
 	QDomNodeList themesNodes = themes.elementsByTagName("theme");
-	
+
 	for (int i=0; i<themesNodes.count(); i++)
 	{
 		QString text, path;
@@ -162,7 +213,7 @@ void SvgGraph::themesMenu()
 		QAction *action = cssMenu.addAction(text);
 		action->setData(path);
 	}
-	
+
 	/* Afficher le menu */
 	cssMenu.exec(QCursor::pos ());
 }
@@ -209,14 +260,14 @@ QByteArray SvgGraph::toSvg() {
 	tr->loadXsl(xslpath);
 	tr->addParam("theme","'" + themePath + "'");
 	QByteArray res (tr->toByteArray());
-	
+
 	/*if (true) TODO Verifier si le post-traitement de l'image est actif
 	{
 		tr->setDoc(res);
 		tr->loadXsl("postSvg.xsl");
 		res = tr->toByteArray();
 	}*/
-	
+
 	nbt++; delete tr;
 	return res;
 }
@@ -237,7 +288,7 @@ void SvgGraph::popupMenu(QPoint pos)
 {
 	QMenu menu(this);
 	connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(xslAction(QAction *)));
-	
+
 	/* Un element est selectionne */
 	if (selectedId != -1) {
 		/* TODO a modifier */
@@ -262,9 +313,9 @@ void SvgGraph::popupMenu(QPoint pos)
 		return;
 	}
 	file.close();
-	
+
 	QDomNodeList actionsNodes = actions.elementsByTagName("action");
-	
+
 	for (int i=0; i<actionsNodes.count(); i++)
 	{
 		QString text, xsl;
@@ -274,7 +325,7 @@ void SvgGraph::popupMenu(QPoint pos)
 		QAction *action = menu.addAction(text);
 		action->setData(xsl);
 	}
-	
+
 	/* Afficher le menu */
 	menu.exec(pos);
 }
@@ -377,7 +428,7 @@ void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 		{
 			int diffX = (e->x() * originalSvgSize().width() / size().width()) - lastPosH;
 			int diffY = (e->y() * originalSvgSize().height() / size().height()) - lastPosV;
-			
+
 			Transform *tr = new Transform;
 			tr->setDoc(graphDom.toByteArray());
 			tr->loadXsl("move.xsl");
@@ -389,10 +440,10 @@ void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 		}
 	lastPosH = e->x() * originalSvgSize().width() / size().width();
 	lastPosV = e->y() * originalSvgSize().height() / size().height();
-	
+
 	/* Signaler que le graphe a ete modifie */
 	saved = 0;
-	
+
 	e->accept(); return;
 }
 
@@ -413,12 +464,12 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 	{
 		if (selectedId != -1) {
 			//unhighlightAll();
-			highlight(selectedId); /* Surbriller l'element */	
+			highlight(selectedId); /* Surbriller l'element */
 		}
 		popupMenu(e->globalPos());
 		e->accept(); return;
 	}
-	
+
 	/* Bouton gauche : selectionner l'element */
 	if (e->button() == Qt::LeftButton)
 	{
@@ -429,9 +480,9 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 
 		e->accept(); return;
 	}
-	
+
 	/* Autres boutons : ne rien faire */
-	e->ignore(); return; 
+	e->ignore(); return;
 }
 
 void SvgGraph::update ()
@@ -440,19 +491,19 @@ void SvgGraph::update ()
 	svgGraphDom.setContent(svgGraph);
 	svgWidth = svgGraphDom.elementsByTagName("svg").at(0).toElement().attribute("width").toInt();
 	svgHeight = svgGraphDom.elementsByTagName("svg").at(0).toElement().attribute("height").toInt();
-	
+
 	load(svgGraph);
 }
 
 void SvgGraph::setTheme (QAction *action)
-{	
+{
 	if (action->data().isNull()) return;
 	themePath = action->data().toString();
 	update();
 }
 
 void SvgGraph::xslAction (QAction *action)
-{	
+{
 	/* Pas de transformation associee a l'action : ne rien faire */
 	if (action->data().isNull()) return;
 
@@ -467,10 +518,10 @@ void SvgGraph::xslAction (QAction *action)
 	graphDom.setContent(tr->toByteArray());
 	update();
 	nbt++; delete tr;
-	
+
 	/* Deselectionner tous les elements selectionnes */
 	//unhighlightAll();
-	
+
 	/* Signaler que le graphe a ete modifie */
 	saved = 0;
 }
