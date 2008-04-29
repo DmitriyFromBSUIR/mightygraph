@@ -17,23 +17,25 @@
  * Credits :
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+ * Samy REVERSAT <reversat AT gmail.com>
  */
- 
+
 #include <QtGui>
 #include "mainwindowimpl.h"
 #include "preferencesimpl.h"
 //
-MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f) 
+MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f)
 	: QMainWindow(parent, f)
 {
 	setupUi(this);
 
-	
+
 	QToolBar *toolBar = new QToolBar("Fichier",this);
 	toolBar->addAction (QIcon(":/toolbar/icons/document-new.png"), "Nouveau", graphImg, SLOT(newDoc()));
 	toolBar->addAction (QIcon(":/toolbar/icons/document-open.png"), "Ouvrir", graphImg, SLOT(open()));
 	toolBar->addAction (QIcon(":/toolbar/icons/document-save.png"), "Enregistrer", graphImg, SLOT(save()));
 	toolBar->addAction (QIcon(":/toolbar/icons/image-x-genericL.png"), "Exporter", graphImg, SLOT(exportGraph()));
+	toolBar->addAction (QIcon(":/toolbar/icons/imprimL.png"), "Imprimer", graphImg, SLOT(impression()));
 	toolBar->addSeparator();
 	toolBar->addAction (QIcon(":/toolbar/icons/edit-undoL.png"), "Annuler", graphImg, SLOT(save()));
 	toolBar->addAction (QIcon(":/toolbar/icons/edit-redoL.png"), "Rétablir", graphImg, SLOT(save()));
@@ -45,12 +47,12 @@ MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f)
 	toolBar->addAction (QIcon(":/toolbar/icons/applications-graphicsL.png"), QString("Thème"), graphImg, SLOT(themesMenu()));
 	toolBar->addAction (QIcon(":/toolbar/icons/document-propertiesL.png"), "Préférences", this, SLOT(preferences()));
 	addToolBar(Qt::TopToolBarArea, toolBar);
-	
+
 	/* Menu principal */
 	connect( actionOuvrir, SIGNAL( triggered() ), graphImg, SLOT( open() ) );
 	connect( actionEnregistrer, SIGNAL( triggered() ), graphImg, SLOT( save() ) );
 	connect( actionEnregistrer_sous, SIGNAL( triggered() ), graphImg, SLOT( saveAs() ) );
-	connect( actionQuitter, SIGNAL( triggered() ), this, SLOT( quit() ) );	
+	connect( actionQuitter, SIGNAL( triggered() ), this, SLOT( quit() ) );
 }
 void MainWindowImpl::preferences ()
 {
@@ -58,7 +60,6 @@ void MainWindowImpl::preferences ()
 	PreferencesImpl *prefWin = new PreferencesImpl;
 	prefWin->show();
 }
-
 /* Events */
 void MainWindowImpl::resizeEvent ( QResizeEvent * event )
 {

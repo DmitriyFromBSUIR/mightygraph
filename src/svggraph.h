@@ -18,6 +18,7 @@
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  * Paul HUYNH <paulytech AT gmail.com>
+ * Samy REVERSAT <reversat AT gmail.com>
  */
 
 #ifndef SVGGRAPH_H
@@ -34,7 +35,7 @@ class SvgGraph : public QSvgWidget
 	void setOriginalSvgSize();
 	QByteArray toSvg();
 	QDomDocument getGraphDom();
-	
+
 	signals:
 	void action(QAction *);
 
@@ -44,10 +45,12 @@ class SvgGraph : public QSvgWidget
 	void save();
 	void saveAs();
 	void exportGraph();
+	void impression();
+	void quit();
 	void themesMenu();
 	void setTheme (QAction *action);
 	void xslAction (QAction *action);
-	
+
 	protected:
 	QString path;
 	bool saved;
@@ -59,7 +62,7 @@ class SvgGraph : public QSvgWidget
 	void unhighlightAll();
 	void mouseMoveEvent(QMouseEvent *e);
 	void mousePressEvent(QMouseEvent *e);
-	
+
 	private:
 	int nbt; // Nombre de transformations
 	QWidget *parent;
