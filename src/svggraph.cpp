@@ -18,9 +18,7 @@
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  * Paul HUYNH <paulytech AT gmail.com>
- * Samy REVERSAT <reversat AT gmail.com>
  */
-
 #include <QtGui>
 #include <QFile>
 #include <QDomDocument>
@@ -28,50 +26,35 @@
 #include "svggraph.h"
 #include "transform.h"
 #include "preferencesimpl.h"
+#include "preview.h"
 
-class QSystemTrayIcon;
-QSystemTrayIcon* sticon;
-
+#define MAX_HISTORY_SIZE 100 /* TODO A mettre dans preferences */
 SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
+
 	this->parent = parent;
+
 	svgWidth = svgHeight = lastPosH = lastPosV = 0;
 	selectedId = -1; saved = 1;
-	nbt = 0; themePath = "default.css";
-	loadFile("default.xml");
 
-/**
-  * Création de l'icone de notification
-  */
-	sticon = new QSystemTrayIcon(this);
-	QMenu* stmenu = new QMenu(this);
+	history = new QByteArray [MAX_HISTORY_SIZE];
+	
+	QSettings settings;
+	nbt = 0;
 
-	QAction* actOuvrir = new QAction("Ouvrir",this);
-	QAction* actEnregistrer = new QAction("Enregistrer",this);
-	QAction* actEnregistrer_sous = new QAction("Enregistrer sous",this);
-    QAction* actQuitter = new QAction("Quitter",this);
+	editor = new QTextEdit (this);
+	editor->setFrameStyle(0);
+	editor->hide();
+	
+	/* Desactiver la barre de defilement */
+	editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	stmenu->addAction(actOuvrir);
-	stmenu->addAction(actEnregistrer);
-	stmenu->addAction(actEnregistrer_sous);
-	stmenu->addAction(actQuitter);
-
-    connect(actOuvrir, SIGNAL(triggered()), this, SLOT(open()));
-    connect(actEnregistrer, SIGNAL(triggered()), this, SLOT(save()));
-    connect(actEnregistrer_sous, SIGNAL(triggered()), this, SLOT(saveAs()));
-    connect(actQuitter, SIGNAL(triggered()), this, SLOT(quit()));
-
-    sticon->setContextMenu(stmenu);
-
-	QIcon icon(":/toolbar/icons/pngicon.png");
-    sticon->setIcon(icon);
-
-	sticon->show();
+	/* Fenetre d'apercu */
+	preview = new Preview(this);
+	preview->setWindowFlags(Qt::Tool);
+	preview->resize(size()/3);
+	preview->show();
 }
 
-/**
-  * Affiche un dialogue d'ouverture de fichier puis affiche le graphe
-  * sÃ©lectionnÃ© dans la fenÃªtre principale
-  */
 void SvgGraph::open()
 {
 	QString path;
@@ -92,8 +75,38 @@ void SvgGraph::newDoc()
 		if (saveDialogRes == QMessageBox::Cancel) return; /* Annuler */
 		if (saveDialogRes == QMessageBox::Save) save();   /* Enregistrer */
 	}
-	loadFile("default.xml");
-	path = QString(); /* Reinitialiser le chemin d'acces*/
+	
+	
+	/* Charger la liste de types disponibles */
+	QStringList types;
+	QSettings settings;
+	QFile file(settings.value("sys/templatesPath").toString() + "/" + "types.xml");
+	QDomDocument typesDom;
+	if (!file.open(QIODevice::ReadOnly))
+		return;
+	if (!typesDom.setContent(&file)) {
+		file.close();
+		return;
+	}
+	file.close();
+	
+	QHash<QString, QString> typesHash;
+	QDomNodeList typesNodes = typesDom.elementsByTagName("type");
+	
+	for (int i=0; i<typesNodes.count(); i++)
+	{
+		QString text, path;
+		QDomNode textNode = typesNodes.at(i);
+		text = textNode.toElement().attribute("text");
+		path = textNode.toElement().attribute("path");
+		typesHash.insert(text,path);
+		types.append(text);
+	}
+	bool *ok;
+	graphType = typesHash.value(QInputDialog::getItem(this, "MightyGraph", "Type :", types, 0, false, ok));
+
+	loadFile(settings.value("sys/templatesPath").toString() + "/" + graphType + "/default.xml");
+	path = QString(); /* Reinitialiser le chemin d'acces */
 }
 
 void SvgGraph::save()
@@ -101,7 +114,7 @@ void SvgGraph::save()
 	if (this->path.isNull()) {
 		QString path;
 		path = QFileDialog::getSaveFileName(this, "Enregistrer sous...", QString::null, "Graphes (*.xml)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
+		if (path.isNull()) return;
 		this->path = path;
 	}
 	/* Enregistrer le fichier XML */
@@ -124,15 +137,15 @@ void SvgGraph::saveAs()
 void SvgGraph::exportGraph()
 {
 	bool *ok; QString filter;
-	QString format = QInputDialog::getItem(this, "Format", "Veuillez sélectionner le format d'export :",
+	QString format = QInputDialog::getItem(this, "Format", "Veuillez s?lectionner le format d'export :",
 						QStringList() << "Image SVG" << "PostScript" << "Document PDF", 0, false, ok);
 	QString path;
-
+	
 	if (format == "Document PDF")
 	{
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Document PDF (*.pdf)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
-
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
 		QPrinter prn;
 		//if (QPrintDialog(&prn, this).exec() != QDialog::Accepted) return;
 		prn.setOutputFormat(QPrinter::PdfFormat);
@@ -146,53 +159,37 @@ void SvgGraph::exportGraph()
 	{
 		QString path;
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "PostScript (*.ps)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
-
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
 		QPrinter prn; prn.setOutputFormat(QPrinter::PostScriptFormat);
 		prn.setOutputFileName(path);
 		render(&prn);
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	}
-
+	
 	if (format == "Image SVG")
 	{
 		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Image SVG (*.svg)");
-		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */
-
+		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
+		
 		QFile exportFile(path);
 		if (exportFile.open(QIODevice::WriteOnly)) { exportFile.write(svgGraphDom.toByteArray(2)); }
 		exportFile.close();
-
+		
 	}
 	QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-}
-
-void SvgGraph::impression()
-{
-    QPrinter Printer;
-    QPrintDialog *dialog = new QPrintDialog(&Printer);
-    if (dialog->exec() == QDialog::Accepted)
-    {
-     QPainter Painter;
-     Painter.begin(&Printer);
-
-     Painter.end();
-    }
-    return;
-}
-
-void SvgGraph::quit()
-{
-	exit(0);
 }
 
 void SvgGraph::themesMenu()
 {
 	QMenu cssMenu(this);
 	connect(&cssMenu, SIGNAL(triggered(QAction *)), this, SLOT(setTheme(QAction *)));
-
+	
+	
+	
 	/* Charger la liste des themes disponibles */
-	QFile file("themes.xml");
+	QSettings settings;
+	QFile file(settings.value("sys/templatesPath").toString() +  "/" + graphType + "/themes.xml");
 	QDomDocument themes;
 	if (!file.open(QIODevice::ReadOnly))
 		return;
@@ -201,19 +198,22 @@ void SvgGraph::themesMenu()
 		return;
 	}
 	file.close();
-
+	
 	QDomNodeList themesNodes = themes.elementsByTagName("theme");
-
+	
 	for (int i=0; i<themesNodes.count(); i++)
 	{
 		QString text, path;
 		QDomNode thm = themesNodes.at(i);
 		text = thm.toElement().attribute("text");
+		
 		path = thm.toElement().attribute("path");
+		qDebug(path.toLatin1());
+		
 		QAction *action = cssMenu.addAction(text);
 		action->setData(path);
 	}
-
+	
 	/* Afficher le menu */
 	cssMenu.exec(QCursor::pos ());
 }
@@ -229,66 +229,79 @@ void SvgGraph::loadFile(QString path)
 		return;
 	}
 	file.close();
+
+	/* Charger le type du graphe */
+	graphType = graphDom.elementsByTagName("graphe").at(0).toElement().attribute("type");
+
+	/* Theme par defaut */
+	QSettings settings;
+	themePath = settings.value("sys/templatesPath").toString() + "/" + graphType + "/themes/default.css";
+
 	update();
+	zoomFactor = 1; /* Reinitialiser le zoom */
+	setOriginalSvgSize();
+	historyIndex = 0;
+	
+	history[historyIndex] = graphDom.toByteArray();
+
+	/* Griser le bouton Annuler */
+	hashToolbar["undo"]->setDisabled(true);
+	hashToolbar["redo"]->setDisabled(true);
+	hashToolbar["zoomInit"]->setDisabled(true);
+	
 }
 
-/**
- * Renvoie la taille par dÃ©faut du graphe
- * @return la taille du graphe
- */
+Preview* SvgGraph::getPreview()
+{
+	return preview;
+}
+
 QSize SvgGraph::originalSvgSize() {
 	return QSize(svgWidth, svgHeight);
 }
 
-/**
-  * Modifie la taille du graphe Ã  un multiple de sa taille par dÃ©faut
-  */
 void SvgGraph::setOriginalSvgSize() {
 	QSize newSize (originalSvgSize());
 	newSize.scale(parent->size(), Qt::KeepAspectRatio);
-	resize(newSize);
+	resize(newSize * zoomFactor);
+	
 }
 
-/**
-  * GÃ©nÃ¨re la reprÃ©sentation SVG du graphe
-  * @return image SVG du graphe
-  */
+
 QByteArray SvgGraph::toSvg() {
+	QSettings settings;
 	Transform *tr = new Transform (); // <-- a deplacer en attribut de classe pour eviter de recharger tout a chaque fois
 	QString xslpath("convertir.xsl");
 	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl(xslpath);
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/" + xslpath);
 	tr->addParam("theme","'" + themePath + "'");
 	QByteArray res (tr->toByteArray());
-
+	
 	/*if (true) TODO Verifier si le post-traitement de l'image est actif
-	{
+	{*/
 		tr->setDoc(res);
-		tr->loadXsl("postSvg.xsl");
+		tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/" + "postSvg.xsl");
 		res = tr->toByteArray();
-	}*/
-
+	/*}*/
+	
 	nbt++; delete tr;
 	return res;
 }
 
-/**
-  * Renvoie le graphe sous la forme DOM (Document Object Model)
-  * @return graphe DOM
-  */
+
 QDomDocument SvgGraph::getGraphDom() {
 	 return graphDom;
 }
 
-/**
-  * Affiche le menu contextuel
-  * @param pos Position où le menu doit être affiché
-  */
+void SvgGraph::setToolbar(QHash<QString, QAction*> hashToolbar) {
+	this->hashToolbar = hashToolbar;
+}
+
 void SvgGraph::popupMenu(QPoint pos)
 {
 	QMenu menu(this);
 	connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(xslAction(QAction *)));
-
+	
 	/* Un element est selectionne */
 	if (selectedId != -1) {
 		/* TODO a modifier */
@@ -303,40 +316,69 @@ void SvgGraph::popupMenu(QPoint pos)
 	/*menu.addAction("Ouvrir", this, SLOT(open()));
 	menu.addSeparator();
 	*/
-	/* Charger la liste des actions disponibles */
-	QFile file("actions.xml");
-	QDomDocument actions;
-	if (!file.open(QIODevice::ReadOnly))
-		return;
-	if (!actions.setContent(&file)) {
-		file.close();
-		return;
+	
+	/* Calculer le nombre d'elements selectionnes */
+	Transform *tr = new Transform;
+
+	tr->setDoc(graphDom.toByteArray());
+	QSettings settings;
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/counter.xsl");
+	QDomDocument highlightedElements;
+	highlightedElements.setContent(tr->toByteArray());
+
+	tr->loadDoc(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/actions.xml");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/actions.xsl");
+
+	QDomNodeList actionNodes = highlightedElements.elementsByTagName("selected").at(0).childNodes ();
+
+	/* Verifier si le type de tous les elements est identique */
+	QString type = "multiple";
+	if (actionNodes.count() > 0)
+	{
+		type = actionNodes.at(0).toElement().tagName();
+		if (actionNodes.count() > 1)
+		{
+			for (int j=1; j<actionNodes.count(); j++)
+			{
+				if (actionNodes.at(j).toElement().tagName() != type)
+				{
+					type = "multiple";
+				}
+			}
+		}
 	}
-	file.close();
 
+	tr->addParam("counter", highlightedElements.elementsByTagName("selected").at(0).childNodes ().count());
+	tr->addParam("type", "'" + type + "'");
+	
+	QDomDocument actions; actions.setContent(tr->toByteArray());
+	delete tr;
+	
+	/* Charger la liste des actions disponibles */
 	QDomNodeList actionsNodes = actions.elementsByTagName("action");
-
+	
 	for (int i=0; i<actionsNodes.count(); i++)
 	{
-		QString text, xsl;
+		QString text, xsl, unary;
 		QDomNode act = actionsNodes.at(i);
 		text = act.toElement().attribute("text");
 		xsl = act.toElement().attribute("path");
-		QAction *action = menu.addAction(text);
-		action->setData(xsl);
-	}
+		unary = act.toElement().attribute("unary");
 
+		QAction *action = menu.addAction(text);
+		action->setData(unary + xsl);
+	}
+	
 	/* Afficher le menu */
 	menu.exec(pos);
 }
-/**
-  * Recalcule la liste des éléments sélectionnés
-  */
+
 void SvgGraph::select()
 {
+	QSettings settings;
 	Transform *tr = new Transform;
 	tr->setDoc(svgGraphDom.toByteArray());
-	tr->loadXsl("select.xsl");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/select.xsl");
 	tr->addParam("posv", lastPosV);
 	tr->addParam("posh", lastPosH);
 	QByteArray idXml(tr->toByteArray());
@@ -350,15 +392,13 @@ void SvgGraph::select()
 	}
 	nbt++; delete tr;
 }
-/**
-  * Retourne l'ID du dernier élément
-  * @return ID du dernier élément
-  */
+
 int SvgGraph::lastId ()
 {
+	QSettings settings;
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl("idlist.xsl");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/idlist.xsl");
 	QByteArray idListXml(tr->toByteArray());
 	QDomDocument idListDom; idListDom.setContent(idListXml);
 	int id = idListDom.elementsByTagName("id").at(0).toElement().text().toInt();
@@ -366,61 +406,51 @@ int SvgGraph::lastId ()
 	return id;
 }
 
-/**
-  * Sélectionne un élément
-  * @param id L'id de l'élément
-  * @see unhighlight()
-  */
+
 void SvgGraph::highlight (int id)
 {
+	QSettings settings;
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl("highlight.xsl");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/highlight.xsl");
 	tr->addParam("id", id);
 	graphDom.setContent(tr->toByteArray());
 	update();
 	nbt++; delete tr;
 }
 
-/**
-  * Déselectionne un élément
-  * @param id L'id de l'élément
-  * @see highlight()
-  */
 void SvgGraph::unhighlight (int id)
 {
+	QSettings settings;
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl("unhighlight.xsl");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/unhighlight.xsl");
 	tr->addParam("id", id);
 	graphDom.setContent(tr->toByteArray());
 	update();
 	nbt++; delete tr;
 }
 
-/**
-  * Déselectionne tous les éléments
-  * @see unhighlight() highlight()
-  */
 void SvgGraph::unhighlightAll ()
 {
+	QSettings settings;
 	Transform *tr = new Transform;
 	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl("unhighlightall.xsl");
+	tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/unhighlightall.xsl");
 	graphDom.setContent(tr->toByteArray());
 	update();
 	nbt++; delete tr;
 }
 
-/**
-  * Evénement de gestion du mouvement de la souris
-  * Cet événement correspond à un mouvent de la souris.
-  * Il incorpore notamment la gestion du déplacement
-  * de la souris.
-  * @param e Evénement
-  */
+
 void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 {
+	/* Cacher l'editeur */
+	if (!editor->isHidden())
+	{
+		editor->hide();
+	}
+
 	if (selectedId == -1) {
 		e->accept(); return;
 	}
@@ -428,10 +458,11 @@ void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 		{
 			int diffX = (e->x() * originalSvgSize().width() / size().width()) - lastPosH;
 			int diffY = (e->y() * originalSvgSize().height() / size().height()) - lastPosV;
-
+			
+			QSettings settings;
 			Transform *tr = new Transform;
 			tr->setDoc(graphDom.toByteArray());
-			tr->loadXsl("move.xsl");
+			tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/move.xsl");
 			tr->addParam("diffx", diffX);
 			tr->addParam("diffy", diffY);
 			graphDom.setContent(tr->toByteArray());
@@ -440,21 +471,17 @@ void SvgGraph::mouseMoveEvent(QMouseEvent *e)
 		}
 	lastPosH = e->x() * originalSvgSize().width() / size().width();
 	lastPosV = e->y() * originalSvgSize().height() / size().height();
-
+	
 	/* Signaler que le graphe a ete modifie */
 	saved = 0;
-
+	
 	e->accept(); return;
 }
 
-/**
-  * Evénement de gestion des boutons de la souris
-  * Cet événement correspond à un appui sur un bouton de la souris.
-  * Il incorpore notamment la gestion du menu contextuel.
-  * @param e Evénement
-  */
+
 void SvgGraph::mousePressEvent(QMouseEvent *e)
 {
+	
 	/* Enregister la position lors du dernier clic (par rapport a l'image non agrandie) */
 	lastPosH = e->x() * originalSvgSize().width() / size().width();
 	lastPosV = e->y() * originalSvgSize().height() / size().height();
@@ -464,12 +491,12 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 	{
 		if (selectedId != -1) {
 			//unhighlightAll();
-			highlight(selectedId); /* Surbriller l'element */
+			highlight(selectedId); /* Surbriller l'element */	
 		}
 		popupMenu(e->globalPos());
 		e->accept(); return;
 	}
-
+	
 	/* Bouton gauche : selectionner l'element */
 	if (e->button() == Qt::LeftButton)
 	{
@@ -477,12 +504,65 @@ void SvgGraph::mousePressEvent(QMouseEvent *e)
 		if (selectedId != -1) {
 			highlight(selectedId);
 		}
+		
+		/* L'utilisateur a termine la modification d'un champ */
+		if (!editor->isHidden())
+		{	QSettings settings;
+			Transform *tr = new Transform;
+			tr->setDoc(graphDom.toByteArray());
+			tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/modify.xsl");
+			tr->addParam("id", editId);
+			tr->addParam("content", "'" + editor->toPlainText() + "'");
+			graphDom.setContent(tr->toByteArray());
+			update();
 
+			delete tr;
+			editor->hide();
+		}
+		
 		e->accept(); return;
 	}
-
+	
 	/* Autres boutons : ne rien faire */
-	e->ignore(); return;
+	e->ignore(); return; 
+}
+
+void SvgGraph::mouseReleaseEvent(QMouseEvent *e) {
+
+	if (graphDom.toByteArray() != history[historyIndex])
+	{
+		updateHistory();
+	}
+	e->accept();
+}
+
+void SvgGraph::mouseDoubleClickEvent(QMouseEvent *e)
+{	QSettings settings;
+	if (selectedId != -1)
+	{
+		editId = selectedId;
+		Transform *tr = new Transform;
+		tr->setDoc(svgGraphDom.toByteArray());
+		tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/load.xsl");
+		tr->addParam("id", selectedId);
+		QDomDocument position; position.setContent(tr->toByteArray());
+		int x = position.elementsByTagName("x").at(0).toElement().text().toInt();
+		x = x * size().width() / originalSvgSize().width() + 2;
+		int y = position.elementsByTagName("y").at(0).toElement().text().toInt();
+		y = y * size().height() / originalSvgSize().height() + 2;
+		int w = position.elementsByTagName("width").at(0).toElement().text().toInt();
+		w = w * size().width() / originalSvgSize().width() - 4;
+		int h = position.elementsByTagName("height").at(0).toElement().text().toInt();
+		h = h * size().height() / originalSvgSize().height() - 4;
+	
+		QString content = position.elementsByTagName("content").at(0).toElement().text();
+		
+		delete tr;
+		editor->setGeometry(x, y, w, h);
+		editor->setText(content);
+		editor->show();
+	}
+	e->accept();
 }
 
 void SvgGraph::update ()
@@ -491,37 +571,166 @@ void SvgGraph::update ()
 	svgGraphDom.setContent(svgGraph);
 	svgWidth = svgGraphDom.elementsByTagName("svg").at(0).toElement().attribute("width").toInt();
 	svgHeight = svgGraphDom.elementsByTagName("svg").at(0).toElement().attribute("height").toInt();
-
 	load(svgGraph);
+
+	preview->setSvgSize(originalSvgSize());
+	preview->setGraphType(graphType);
+	preview->loadSvg(svgGraphDom.toByteArray());
+	preview->updatePreviewArea();
+	
+	qDebug(graphType.toLatin1());
 }
 
 void SvgGraph::setTheme (QAction *action)
-{
+{	
 	if (action->data().isNull()) return;
-	themePath = action->data().toString();
+	QSettings settings;
+	themePath = settings.value("sys/templatesPath").toString()  + "/" + graphType + "/themes/" + action->data().toString();
 	update();
 }
 
 void SvgGraph::xslAction (QAction *action)
-{
+{	QSettings settings;
 	/* Pas de transformation associee a l'action : ne rien faire */
 	if (action->data().isNull()) return;
 
-	Transform *tr = new Transform;
-	tr->setDoc(graphDom.toByteArray());
-	tr->loadXsl(action->data().toString());
-	tr->addParam("id", selectedId);
-	tr->addParam("newId", lastId()+1);
-	tr->addParam("posv", lastPosV);
-	tr->addParam("posh", lastPosH);
-	tr->addParam("value", "'XYZ'");
-	graphDom.setContent(tr->toByteArray());
-	update();
-	nbt++; delete tr;
+	QString data = action->data().toString();
+	QString unary = data.left(1);
+	QString path = data.right(data.length() - 1);
 
+	if (unary == "0")
+	{	QSettings settings;
+		Transform *tr = new Transform;
+		tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/" + path);
+		tr->setDoc(graphDom.toByteArray());
+		/* Action n-aire */
+		tr->addParam("id", selectedId);
+		tr->addParam("newId", lastId()+1);
+		tr->addParam("posv", lastPosV);
+		tr->addParam("posh", lastPosH);
+		tr->addParam("value", "'XYZ'");
+		graphDom.setContent(tr->toByteArray());
+		delete tr;
+	} else {
+		/* Action unaire */
+		Transform *tr2 = new Transform;
+		tr2->setDoc(graphDom.toByteArray());
+		tr2->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/counter.xsl");
+		QDomDocument highlightedElements;
+		highlightedElements.setContent(tr2->toByteArray());
+
+		
+		QDomNodeList unaryActions = highlightedElements.elementsByTagName("selected").at(0).childNodes ();
+		for (int i=0; i<unaryActions.count(); i++)
+		{
+			Transform *tr = new Transform;
+			tr->loadXsl(settings.value("sys/templatesPath").toString()  + "/" + graphType + "/" + path);
+			tr->setDoc(graphDom.toByteArray());
+			int id = unaryActions.at(i).toElement().attributeNode("id").value().toInt();
+			tr->addParam("id", id);
+			tr->addParam("newId", lastId()+1);
+			tr->addParam("posv", lastPosV);
+			tr->addParam("posh", lastPosH);
+			tr->addParam("value", "'XYZ'");
+			graphDom.setContent(tr->toByteArray());
+			delete tr;
+		}
+		delete tr2;
+	}
+	
+	update();
+
+
+	
 	/* Deselectionner tous les elements selectionnes */
 	//unhighlightAll();
-
+	
 	/* Signaler que le graphe a ete modifie */
 	saved = 0;
+	
+	updateHistory();
+}
+
+void SvgGraph::updateHistory()
+{
+	if (historyLastIndex == MAX_HISTORY_SIZE - 1)
+	{
+		for (int i=1; i<MAX_HISTORY_SIZE; i++) history[i-1] = history[i];
+		historyIndex--; historyLastIndex--;
+	}
+	
+	/* Actualiser l'historique */
+	historyIndex++;
+	historyLastIndex++;
+	if (historyIndex != historyLastIndex)
+	{
+		historyLastIndex = historyIndex;
+	}
+	history[historyIndex] = graphDom.toByteArray();
+	hashToolbar["redo"]->setDisabled(true);
+	hashToolbar["undo"]->setDisabled(false);
+}
+
+void SvgGraph::zoomLess ()
+{
+	hashToolbar["zoomMore"]->setDisabled(false);
+	hashToolbar["zoomInit"]->setDisabled(false);
+	if (zoomFactor < 0.1)
+	{
+		hashToolbar["zoomLess"]->setDisabled(true);
+	} else {
+		zoomFactor *= 0.9;
+		setOriginalSvgSize();
+	}
+	update();
+}
+
+void SvgGraph::zoomMore ()
+{
+	hashToolbar["zoomLess"]->setDisabled(false);
+	hashToolbar["zoomInit"]->setDisabled(false);
+	if (zoomFactor > 20)
+	{
+		hashToolbar["zoomMore"]->setDisabled(true);
+	} else {
+		zoomFactor *= 1.1;
+		setOriginalSvgSize();
+	}
+	update();
+}
+
+void SvgGraph::zoomInit ()
+{
+	hashToolbar["zoomInit"]->setDisabled(true);
+	zoomFactor = 1;
+	setOriginalSvgSize();
+	update();
+}
+
+float SvgGraph::getZoomFactor ()
+{
+	return zoomFactor;
+}
+
+void SvgGraph::undo ()
+{	historyIndex--;
+	graphDom.setContent(history[historyIndex]);
+	update();
+	if (!historyIndex)
+	{
+		hashToolbar["undo"]->setDisabled(true);
+	}
+	hashToolbar["redo"]->setDisabled(false);
+}
+
+void SvgGraph::redo ()
+{
+	historyIndex++;
+	graphDom.setContent(history[historyIndex]);
+	update();
+	if (historyIndex == historyLastIndex)
+	{
+		hashToolbar["redo"]->setDisabled(true);
+	}
+	hashToolbar["undo"]->setDisabled(false);
 }

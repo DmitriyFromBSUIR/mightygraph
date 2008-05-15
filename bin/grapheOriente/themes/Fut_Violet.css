@@ -1,0 +1,32 @@
+
+/* Bebon Frederic */
+svg {
+	}
+
+.selectedText {
+	fill: #990066;
+	}
+
+.unselectedText {
+	fill: #0000FF;
+	}
+
+.selected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:1;
+	stroke: #990066;
+	stroke-opacity:0.6;
+	stroke-linejoin:round;
+	stroke-width: 15;
+	}
+	
+.unselected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:0.7;
+	stroke: #0000FF;
+	stroke-opacity:0.2;
+	stroke-linejoin:round;
+	stroke-width: 7;
+	}

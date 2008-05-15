@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<themes>
+	<theme text="Par défaut" path="default.css" />
+	<theme text="Futuriste" path="futuriste.css" />
+	<theme text="Futuriste orange" path="futuriste_orange.css" />
+	
+	<theme text="Futuriste violet" path="Fut_Violet.css" />
+	<theme text="Futuriste vert" path="Fut_Vert.css" />
+	<theme text="Futuriste rouge" path="Fut_Rouge.css" />
+	<theme text="Futuriste orange" path="Fut_Orange.css" />
+	<theme text="Futuriste noir" path="Fut_Noir.css" />
+	<theme text="Futuriste bleu" path="Fut_Bleu.css" />
+	
+	<theme text="Classique violet" path="Class_Violet.css" />
+	<theme text="Classique vert" path="Class_Vert.css" />
+	<theme text="Classique rouge" path="Class_Rouge.css" />
+	<theme text="Classique orange" path="Class_Orange.css" />
+	<theme text="Classique noir" path="Class_Noir.css" />
+	<theme text="Classique bleu" path="Class_Bleu.css" />
+</themes>

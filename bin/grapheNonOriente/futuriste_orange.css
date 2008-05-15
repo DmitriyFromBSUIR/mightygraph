@@ -1,0 +1,37 @@
+/* Style par defaut */
+svg {
+
+	}
+
+.selectedText {
+	fill: red;
+	}
+
+.unselectedText {
+	fill: orange;
+	}
+
+.selected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:1;
+	stroke: red;
+	stroke-opacity:0.6;
+	stroke-linejoin:round;
+	stroke-width: 15;
+	}
+	
+.unselected {
+	opacity:0.8;
+	fill:white;
+	fill-opacity:0.7;
+	stroke: orange;
+	stroke-opacity:0.2;
+	stroke-linejoin:round;
+	stroke-width: 7;
+	}
+
+.previewArea {
+	fill: orange;
+	fill-opacity: 0.5;
+}

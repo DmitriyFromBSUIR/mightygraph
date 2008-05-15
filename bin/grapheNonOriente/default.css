@@ -11,6 +11,18 @@ svg {
 	fill: black;
 	}
 
+.selectedArrow {
+	fill: none;
+	stroke: red;
+	stroke-width: 2;
+	}
+
+.unselectedArrow {
+	fill: none;
+	stroke: black;
+	stroke-width: 2;
+	}
+
 .selected {
 	fill: white;
 	stroke: red;
@@ -22,3 +34,8 @@ svg {
 	stroke: black;
 	stroke-width: 2;
 	}
+	
+.previewArea {
+	fill: red;
+	fill-opacity: 0.5;
+}

@@ -22,6 +22,7 @@
 #include "transform.h"
 #include <QDomDocument>
 #include <QFile>
+#include <QSettings>
 #include <libxslt/transform.h>
 
 Transform::Transform() { }
@@ -38,6 +39,8 @@ void Transform::loadDoc (QString docPath) {
 }
 
 void Transform::loadXsl (QString xslPath) {
+
+	
 	/* Charger la transformation */
 	QFile xslFile(xslPath);
 	if (xslFile.open(QIODevice::ReadOnly)) {

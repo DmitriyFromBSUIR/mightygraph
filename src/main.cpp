@@ -27,11 +27,15 @@ int main(int argc, char ** argv)
 {
 	QApplication app( argc, argv );
 
+	QCoreApplication::setOrganizationName("MightyGraph");
+	QCoreApplication::setOrganizationDomain("mightygraph.googlecode.com");
+	QCoreApplication::setApplicationName("MightyGraph");
+
 	/* Initialiser le compteur de transformations XSL */
 	Transform::transfCounter = 0;
 
 	MainWindowImpl win;
 	win.show(); 
-	app.connect( &app, SIGNAL( lastWindowClosed() ), &app, SLOT( quit() ) );
+	app.connect( &app, SIGNAL( lastWindowClosed() ), &win, SLOT( quit() ) );
 	return app.exec();
 }
