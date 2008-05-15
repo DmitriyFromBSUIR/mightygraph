@@ -1,0 +1,41 @@
+/* Style par defaut */
+svg {
+	background-color: white;
+	}
+
+.selectedText {
+	fill: red;
+	}
+
+.unselectedText {
+	fill: black;
+	}
+
+.selectedArrow {
+	fill: none;
+	stroke: red;
+	stroke-width: 2;
+	}
+
+.unselectedArrow {
+	fill: none;
+	stroke: black;
+	stroke-width: 2;
+	}
+
+.selected {
+	fill: white;
+	stroke: red;
+	stroke-width: 2;
+	}
+	
+.unselected {
+	fill: white;
+	stroke: black;
+	stroke-width: 2;
+	}
+	
+.previewArea {
+	fill: red;
+	fill-opacity: 0.5;
+}

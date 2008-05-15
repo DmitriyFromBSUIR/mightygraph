@@ -1,21 +1,20 @@
 /* Style par defaut */
 svg {
-
 	}
 
 .selectedText {
-	fill: red;
+	fill: blue;
 	}
 
 .unselectedText {
-	fill: orange;
+	fill: black;
 	}
 
 .selected {
 	opacity:0.8;
 	fill:white;
 	fill-opacity:1;
-	stroke: red;
+	stroke: blue;
 	stroke-opacity:0.6;
 	stroke-linejoin:round;
 	stroke-width: 15;
@@ -25,8 +24,13 @@ svg {
 	opacity:0.8;
 	fill:white;
 	fill-opacity:0.7;
-	stroke: orange;
+	stroke: black;
 	stroke-opacity:0.2;
 	stroke-linejoin:round;
 	stroke-width: 7;
 	}
+	
+.previewArea {
+	fill: blue;
+	fill-opacity: 0.5;
+}

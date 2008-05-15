@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<actions>
-	<action text="Ajouter un sommet" path="ajouter.xsl" />
-	<action text="Modifier" path="mod.xsl" />
-	<action text="Supprimer" path="supprimer.xsl" />
-	<action text="Lier" path="lier.xsl" />
-	<action text="Sélectionner tout" path="highlightall.xsl" />
-</actions>
