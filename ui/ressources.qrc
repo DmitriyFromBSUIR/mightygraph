@@ -3,7 +3,6 @@
         <file>icons/document-new.png</file>
         <file>icons/document-open.png</file>
         <file>icons/document-propertiesL.png</file>
-        <file>icons/imprimL.png</file>
         <file>icons/document-save-asL.png</file>
         <file>icons/document-save.png</file>
         <file>icons/edit-redoL.png</file>
@@ -11,8 +10,8 @@
         <file>icons/zoom-best-fitL.png</file>
         <file>icons/zoom-inL.png</file>
         <file>icons/zoom-outL.png</file>
-        <file>icons/pngicon.png</file>
 	<file>icons/applications-graphicsL.png</file>
 	<file>icons/image-x-genericL.png</file>
+	<file>icons/system-searchL.png</file>
     </qresource>
 </RCC>
