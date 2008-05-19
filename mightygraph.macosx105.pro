@@ -1,4 +1,4 @@
-5TEMPLATE = app
+TEMPLATE = app
 DEPENDPATH += . build src ui
 INCLUDEPATH += . /usr/local/include
 QT = gui core xml svg
