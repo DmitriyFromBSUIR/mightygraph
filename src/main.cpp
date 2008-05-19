@@ -27,9 +27,22 @@ int main(int argc, char ** argv)
 {
 	QApplication app( argc, argv );
 
+	/* Paramètres de stockage des préférences */
 	QCoreApplication::setOrganizationName("MightyGraph");
 	QCoreApplication::setOrganizationDomain("mightygraph.googlecode.com");
 	QCoreApplication::setApplicationName("MightyGraph");
+
+	/* Installer le support de la localisation */
+	QTranslator translator;
+	
+	/* Langue par defaut = langue du système */
+	/*QString locale = QLocale::system().name();
+	translator.load("mightygraph_" + locale);
+	qDebug("System language : " + locale.toLatin1());
+	app.installTranslator(&translator);*/
+	
+	translator.load("mightygraph_fr_FR");
+	app.installTranslator(&translator);
 
 	/* Initialiser le compteur de transformations XSL */
 	Transform::transfCounter = 0;

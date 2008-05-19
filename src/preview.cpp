@@ -18,6 +18,8 @@
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  * Paul HUYNH <paulytech AT gmail.com>
+ * Maxime VALIERE <maxime.valiere AT polytech.univ-montp2.fr>
+ * Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
  */
 
 #include <QtGui>
@@ -25,6 +27,7 @@
 #include "preview.h"
 #include "transform.h"
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr> */
 Preview::Preview( QWidget * parent) : QSvgWidget() {
 	setParent(parent);
 	graphImg = parent;
@@ -33,11 +36,16 @@ Preview::Preview( QWidget * parent) : QSvgWidget() {
 	ex = 0; ey = 0;
 }
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr> */
+/* Paul HUYNH <paulytech AT gmail.com>*/
 void Preview::loadSvg (QByteArray svgGraph)
 {
 	this->svgGraph = svgGraph;
 }
 
+/* Maxime VALIERE <maxime.valiere AT polytech.univ-montp2.fr>
+ * Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
+ */
 void Preview::updatePreviewArea()
 {	QSettings settings;
 	Transform *tr = new Transform;
@@ -55,21 +63,26 @@ void Preview::updatePreviewArea()
 	delete tr;
 }
 
+/* Paul HUYNH <paulytech AT gmail.com>*/
 void Preview::setSvgSize(QSize s)
 {
 	svgSize = s;
 }
 
+/* Paul HUYNH <paulytech AT gmail.com>*/
 void Preview::setGraphType(QString graphType)
 {
 	this->graphType = graphType;
 }
 
+/* Paul HUYNH <paulytech AT gmail.com>*/
 void Preview::mousePressEvent(QMouseEvent *e)
 {
 	mouseMoveEvent(e);
 }
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+ * Maxime VALIERE <maxime.valiere AT polytech.univ-montp2.fr>*/
 void Preview::mouseMoveEvent(QMouseEvent *e)
 {
 	QRect visibleArea = graphImg->visibleRegion ().boundingRect ();
@@ -81,6 +94,7 @@ void Preview::mouseMoveEvent(QMouseEvent *e)
 	updatePreviewArea();
 }
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr> */
 void Preview::toggleVisibility()
 {
 	if (isHidden())
@@ -91,6 +105,9 @@ void Preview::toggleVisibility()
 	}
 }
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+ * Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
+ */
 void Preview::showEvent ( QShowEvent * e)
 {
 	QSettings settings;
@@ -105,6 +122,9 @@ void Preview::showEvent ( QShowEvent * e)
 	e->accept();
 }
 
+/* Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+ * Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
+ */
 void Preview::hideEvent (QHideEvent *e)
 {
 	QSettings settings;

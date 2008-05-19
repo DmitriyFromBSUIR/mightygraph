@@ -20,10 +20,6 @@
 
  * You should have received a copy of the GNU General Public License
  * along with MightyGraph.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Credits :
- *
- * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  */
 
 #include <QMainWindow>

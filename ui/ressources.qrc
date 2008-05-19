@@ -13,5 +13,6 @@
 	<file>icons/applications-graphicsL.png</file>
 	<file>icons/image-x-genericL.png</file>
 	<file>icons/system-searchL.png</file>
+	<file>icons/document-printL.png</file>
     </qresource>
 </RCC>

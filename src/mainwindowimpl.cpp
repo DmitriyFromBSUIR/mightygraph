@@ -16,38 +16,40 @@
  * Credits :
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+ * Paul HUYNH <paulytech AT gmail.com>
  */
 
 #include <QtGui>
 #include "mainwindowimpl.h"
-#include "scroll.h"
 #include "preferencesimpl.h"
 
 
 MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f)
 	: QMainWindow(parent, f)
 {
+	
 	setupUi(this);
 	
 	QHash<QString, QAction*> hashToolbar;
 	
 	QToolBar *toolBar = new QToolBar("Fichier",this);
-	hashToolbar["nouveau"] = toolBar->addAction (QIcon(":/toolbar/icons/document-new.png"), "Nouveau", graphImg, SLOT(newDoc()));
-	hashToolbar["ouvrir"] = toolBar->addAction (QIcon(":/toolbar/icons/document-open.png"), "Ouvrir", graphImg, SLOT(open()));
-	hashToolbar["enregistrer"] = toolBar->addAction (QIcon(":/toolbar/icons/document-save.png"), "Enregistrer", graphImg, SLOT(save()));
-	hashToolbar["exporter"] = toolBar->addAction (QIcon(":/toolbar/icons/image-x-genericL.png"), "Exporter", graphImg, SLOT(exportGraph()));
+	hashToolbar["nouveau"] = toolBar->addAction (QIcon(":/toolbar/icons/document-new.png"), tr("Nouveau"), graphImg, SLOT(newDoc()));
+	hashToolbar["ouvrir"] = toolBar->addAction (QIcon(":/toolbar/icons/document-open.png"), tr("Ouvrir"), graphImg, SLOT(open()));
+	hashToolbar["enregistrer"] = toolBar->addAction (QIcon(":/toolbar/icons/document-save.png"), tr("Enregistrer"), graphImg, SLOT(save()));
+	hashToolbar["exporter"] = toolBar->addAction (QIcon(":/toolbar/icons/image-x-genericL.png"), tr("Exporter"), graphImg, SLOT(exportGraph()));
+	hashToolbar["imprimer"] = toolBar->addAction (QIcon(":/toolbar/icons/document-printL.png"), tr("Imprimer"), graphImg, SLOT(print()));
 	toolBar->addSeparator();
-	hashToolbar["undo"] = toolBar->addAction (QIcon(":/toolbar/icons/edit-undoL.png"), "Annuler", graphImg, SLOT(undo()));
-	hashToolbar["redo"] = toolBar->addAction (QIcon(":/toolbar/icons/edit-redoL.png"), "Rétablir", graphImg, SLOT(redo()));
+	hashToolbar["undo"] = toolBar->addAction (QIcon(":/toolbar/icons/edit-undoL.png"), tr("Annuler"), graphImg, SLOT(undo()));
+	hashToolbar["redo"] = toolBar->addAction (QIcon(":/toolbar/icons/edit-redoL.png"), tr("Rétablir"), graphImg, SLOT(redo()));
 	toolBar->addSeparator();
-	hashToolbar["zoomLess"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-outL.png"), "Zoom arrière", graphImg, SLOT(zoomLess()));
-	hashToolbar["zoomInit"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-best-fitL.png"), "Zoom optimal", graphImg, SLOT(zoomInit()));
-	hashToolbar["zoomMore"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-inL.png"), "Zoom avant", graphImg, SLOT(zoomMore()));
+	hashToolbar["zoomLess"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-outL.png"), tr("Zoom arrière"), graphImg, SLOT(zoomLess()));
+	hashToolbar["zoomInit"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-best-fitL.png"), tr("Zoom optimal"), graphImg, SLOT(zoomInit()));
+	hashToolbar["zoomMore"] = toolBar->addAction (QIcon(":/toolbar/icons/zoom-inL.png"), tr("Zoom avant"), graphImg, SLOT(zoomMore()));
 	toolBar->addSeparator();
-	hashToolbar["themes"] = toolBar->addAction (QIcon(":/toolbar/icons/applications-graphicsL.png"), QString("Thème"), graphImg, SLOT(themesMenu()));
-	hashToolbar["preferences"] = toolBar->addAction (QIcon(":/toolbar/icons/document-propertiesL.png"), "Préférences", this, SLOT(preferences()));
+	hashToolbar["themes"] = toolBar->addAction (QIcon(":/toolbar/icons/applications-graphicsL.png"), tr("Thème"), graphImg, SLOT(themesMenu()));
+	hashToolbar["preferences"] = toolBar->addAction (QIcon(":/toolbar/icons/document-propertiesL.png"), tr("Préférences"), this, SLOT(preferences()));
 	toolBar->addSeparator();
-	hashToolbar["preview"] = toolBar->addAction (QIcon(":/toolbar/icons/system-searchL.png"), "Fenêtre d'aperçu", graphImg->getPreview(), SLOT(toggleVisibility()));
+	hashToolbar["preview"] = toolBar->addAction (QIcon(":/toolbar/icons/system-searchL.png"), tr("Fenêtre d'aperçu"), graphImg->getPreview(), SLOT(toggleVisibility()));
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	
 	graphImg->setToolbar(hashToolbar);

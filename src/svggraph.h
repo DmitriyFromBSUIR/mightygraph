@@ -19,11 +19,6 @@
 
  * You should have received a copy of the GNU General Public License
  * along with MightyGraph.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Credits :
- *
- * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
- * Paul HUYNH <paulytech AT gmail.com>
  */
 #include <QtGui>
 #include <QDomDocument>
@@ -103,6 +98,11 @@ class SvgGraph : public QSvgWidget
 	 * @brief Ouvre le dialogue Enregistrer sous...
 	 */
 	void saveAs();
+
+	/**
+	 * @brief Imprime le graphe
+	 */
+	void print();
 	
 	/**
 	 * @brief Ouvre le dialogue Exporter...
