@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+	 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
@@ -57,12 +59,9 @@
 	
 	<xsl:variable name="cosa" select="$diffX div $h" />
 	<xsl:variable name="sina" select="$diffY div $h" />
-	<path d="M20,15 L0,0 20,-15"  class="unselectedArrow" transform="matrix({$cosa}, {$sina}, {-$sina}, {$cosa}, {@x2}, {@y2})"/>
+	<path d="M20,15 L0,0 20,-15 "  class="unselectedArrow" transform="matrix({$cosa}, {$sina}, {-$sina}, {$cosa}, {@x2}, {@y2})"/>
 	<!--
 	<path d="M0,0 L20,15 20,-15 z"  style="fill:white;stroke:black;stroke-width:2" transform="matrix({$cosa}, {$sina}, {-$sina}, {$cosa}, {@x2}, {@y2})"/>
-	-->
-	<!--
-	<circle cx="{@x2}" cy="{@y2}" r="5" stroke="red" stroke-width="2" fill="red"/>
 	-->
 </xsl:template>
 

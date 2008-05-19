@@ -18,6 +18,7 @@
  *
  * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  * Paul HUYNH <paulytech AT gmail.com>
+ * Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
  */
 #include <QtGui>
 #include <QFile>
@@ -58,7 +59,7 @@ SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 void SvgGraph::open()
 {
 	QString path;
-	path = QFileDialog::getOpenFileName(this, "Ouvrir...", QString::null, "Graphes (*.xml)");
+	path = QFileDialog::getOpenFileName(this, tr("Ouvrir..."), QString::null, tr("Graphes (*.xml)"));
 	if (!path.isNull()) {
 		this->path = path;
 		loadFile(path);
@@ -69,8 +70,8 @@ void SvgGraph::newDoc()
 {
 	if (!saved)
 	{
-		int saveDialogRes = QMessageBox::question(this, "Enregistrer",
-		"Souhaitez-vous enregistrer les modifications ?", QMessageBox::Save,
+		int saveDialogRes = QMessageBox::question(this, tr("Enregistrer"),
+		("Souhaitez-vous enregistrer les modifications ?"), QMessageBox::Save,
 		QMessageBox::Cancel, QMessageBox::Discard);
 		if (saveDialogRes == QMessageBox::Cancel) return; /* Annuler */
 		if (saveDialogRes == QMessageBox::Save) save();   /* Enregistrer */
@@ -103,7 +104,7 @@ void SvgGraph::newDoc()
 		types.append(text);
 	}
 	bool *ok;
-	graphType = typesHash.value(QInputDialog::getItem(this, "MightyGraph", "Type :", types, 0, false, ok));
+	graphType = typesHash.value(QInputDialog::getItem(this, "MightyGraph", tr("Type :"), types, 0, false, ok));
 
 	loadFile(settings.value("sys/templatesPath").toString() + "/" + graphType + "/default.xml");
 	path = QString(); /* Reinitialiser le chemin d'acces */
@@ -113,7 +114,7 @@ void SvgGraph::save()
 {
 	if (this->path.isNull()) {
 		QString path;
-		path = QFileDialog::getSaveFileName(this, "Enregistrer sous...", QString::null, "Graphes (*.xml)");
+		path = QFileDialog::getSaveFileName(this, tr("Enregistrer sous..."), QString::null, tr("Graphes (*.xml)"));
 		if (path.isNull()) return;
 		this->path = path;
 	}
@@ -137,13 +138,13 @@ void SvgGraph::saveAs()
 void SvgGraph::exportGraph()
 {
 	bool *ok; QString filter;
-	QString format = QInputDialog::getItem(this, "Format", "Veuillez s?lectionner le format d'export :",
-						QStringList() << "Image SVG" << "PostScript" << "Document PDF", 0, false, ok);
+	QString format = QInputDialog::getItem(this, tr("Format"), tr("Veuillez sélectionner le format d'export :"),
+						QStringList() << tr("Image SVG") << tr("PostScript") << tr("Document PDF"), 0, false, ok);
 	QString path;
 	
-	if (format == "Document PDF")
+	if (format == tr("Document PDF"))
 	{
-		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Document PDF (*.pdf)");
+		path = QFileDialog::getSaveFileName(this, tr("Exporter..."), QString::null, tr("Document PDF (*.pdf)"));
 		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
 		
 		QPrinter prn;
@@ -155,10 +156,10 @@ void SvgGraph::exportGraph()
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	} else
 
-	if (format == "PostScript")
+	if (format == tr("PostScript"))
 	{
 		QString path;
-		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "PostScript (*.ps)");
+		path = QFileDialog::getSaveFileName(this, tr("Exporter..."), QString::null, tr("PostScript (*.ps)"));
 		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
 		
 		QPrinter prn; prn.setOutputFormat(QPrinter::PostScriptFormat);
@@ -167,17 +168,35 @@ void SvgGraph::exportGraph()
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	}
 	
-	if (format == "Image SVG")
+	if (format == tr("Image SVG"))
 	{
-		path = QFileDialog::getSaveFileName(this, "Exporter...", QString::null, "Image SVG (*.svg)");
+		path = QFileDialog::getSaveFileName(this, tr("Exporter..."), QString::null, tr("Image SVG (*.svg)"));
 		if (path.isNull()) return; /* L'utilisateur a appuye sur Annuler -> ne rien faire */	
 		
 		QFile exportFile(path);
-		if (exportFile.open(QIODevice::WriteOnly)) { exportFile.write(svgGraphDom.toByteArray(2)); }
+		if (exportFile.open(QIODevice::WriteOnly)) {
+			/* Exporte le grqphe sous forme XML avec une indentation de 2 tabulations */
+			exportFile.write(svgGraphDom.toByteArray(2));
+		}
 		exportFile.close();
 		
 	}
 	QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+}
+
+/* Samy REVERSAT <reversat AT gmail.com> */
+void SvgGraph::print()
+{
+	QPrinter Printer;
+	QPrintDialog *dialog = new QPrintDialog(&Printer);
+	if (dialog->exec() == QDialog::Accepted)
+	{
+		QPainter Painter;
+		Painter.begin(&Printer);
+
+		Painter.end();
+	}
+	return;
 }
 
 void SvgGraph::themesMenu()
@@ -208,7 +227,7 @@ void SvgGraph::themesMenu()
 		text = thm.toElement().attribute("text");
 		
 		path = thm.toElement().attribute("path");
-		qDebug(path.toLatin1());
+
 		
 		QAction *action = cssMenu.addAction(text);
 		action->setData(path);
@@ -306,7 +325,7 @@ void SvgGraph::popupMenu(QPoint pos)
 	if (selectedId != -1) {
 		/* TODO a modifier */
 		QString idString; idString.setNum(selectedId);
-		QString menuTitleString = "Element " + idString;
+		QString menuTitleString = tr("Element") + " " + idString;
 		QAction *menuTitle = menu.addAction(menuTitleString);
 		menuTitle->setDisabled(1); /* Griser le titre du menu */
 		menu.addSeparator();
@@ -578,7 +597,7 @@ void SvgGraph::update ()
 	preview->loadSvg(svgGraphDom.toByteArray());
 	preview->updatePreviewArea();
 	
-	qDebug(graphType.toLatin1());
+
 }
 
 void SvgGraph::setTheme (QAction *action)
@@ -704,6 +723,7 @@ void SvgGraph::zoomInit ()
 	hashToolbar["zoomInit"]->setDisabled(true);
 	zoomFactor = 1;
 	setOriginalSvgSize();
+	move(0,0);
 	update();
 }
 

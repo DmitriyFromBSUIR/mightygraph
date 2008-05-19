@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- Christophe PACALY <christophe.pacaly AT polytech.univ-montp2.fr>
+	 -->
 <types>
 	<type text="Graphe non orienté" path="grapheNonOriente" />
 	<type text="Graphe orienté" path="grapheOriente" />

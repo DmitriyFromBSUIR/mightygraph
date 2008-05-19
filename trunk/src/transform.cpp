@@ -33,7 +33,7 @@ void Transform::loadDoc (QString docPath) {
 	/* Charger le document */
 	QFile docFile(docPath);
 	if (docFile.open(QIODevice::ReadOnly)) {
-		doc = docFile.readAll();
+		setDoc(docFile.readAll());
 	}
 	docFile.close();
 }
@@ -44,17 +44,25 @@ void Transform::loadXsl (QString xslPath) {
 	/* Charger la transformation */
 	QFile xslFile(xslPath);
 	if (xslFile.open(QIODevice::ReadOnly)) {
-		xsl = xslFile.readAll();
+		setXsl(xslFile.readAll());
 	}
 	xslFile.close();
 }
 
 void Transform::setDoc (QByteArray doc) {
-	 this->doc = doc;
+	/* Charger le document a transformer dans libXml */
+	this->doc = xmlParseMemory (QString(doc).toAscii(), strlen(QString(doc).toAscii()) * sizeof(char));
 }
 
 void Transform::setXsl (QByteArray xsl) {
-	 this->xsl = xsl;
+	/* Charger la feuille de style XSL dans libXml (on ne peut pas passer directement par le type Xml de Qt) 
+	 * On s'assure que la feuille ne comporte aucun caractere autre que Ascii (les autres caracteres tels
+	 * que les caracteres internationaux ont une traduction Ascii en XML...)
+	 */
+	xmlDocPtr xslPtr = xmlParseMemory (QString(xsl).toAscii(), strlen(QString(xsl).toAscii()) * sizeof(char));
+
+	/* Charger la feuille dans libXslt (xslPtr sera libéré automatiquement) */
+	this->xsl = xsltParseStylesheetDoc(xslPtr);
 }
 
 void Transform::addParam (QString name, QString value) {
@@ -69,9 +77,6 @@ void Transform::addParam (QString name, int value) {
 
 QByteArray Transform::toByteArray () {
 	
-	/* Ne rien faire si la source est vide */
-	if (doc.isNull()) return QByteArray("");
-	
 	/* Incrementer le compteur de transformations */
 	Transform::transfCounter++;
 	
@@ -79,16 +84,6 @@ QByteArray Transform::toByteArray () {
 	xmlSubstituteEntitiesDefault(1);
 	xmlLoadExtDtdDefaultValue = 1;
 
-	/* Charger la feuille de style XSL dans libXml (on ne peut pas passer directement par le type Xml de Qt) 
-	 * On s'assure que la feuille ne comporte aucun caractere autre que Ascii (les autres caracteres tels
-	 * que les caracteres internationaux ont une traduction Ascii en XML...)
-	 */
-	xmlDocPtr xslPtr = xmlParseMemory (QString(xsl).toAscii(), strlen(QString(xsl).toAscii()) * sizeof(char));
-	/* Charger la feuille dans libXslt */
-	xsltStylesheetPtr stylesheet = xsltParseStylesheetDoc(xslPtr);
-	
-	/* Charger le document a transformer dans libXml */
-	xmlDocPtr docPtr = xmlParseMemory (QString(doc).toAscii(), strlen(QString(doc).toAscii()) * sizeof(char));
 	
 	/* Charger les parametres de la transformations */
 	
@@ -101,7 +96,7 @@ QByteArray Transform::toByteArray () {
 
 	for (int i=0; i<paramList.size(); i++) {
 		char *param = new char [ paramList.at(i).size()+1 ];
-		strcpy(param , paramList.at(i).toStdString().c_str());
+		strcpy(param, paramList.at(i).toStdString().c_str());
 		paramListChar[i] = param;
 	}
 
@@ -109,7 +104,7 @@ QByteArray Transform::toByteArray () {
 	paramListChar[paramListSize - 1] = NULL;
 	
 	/* Transformer le document selon la feuille de style chargee precedemment */
-	xmlDocPtr resPtr = xsltApplyStylesheet(stylesheet, docPtr, (const char **)&paramListChar);
+	xmlDocPtr resPtr = xsltApplyStylesheet(xsl, doc, (const char **)&paramListChar);
 	
 	
 	/* Vider la liste temporaire (char*) des parametres */
@@ -124,7 +119,7 @@ QByteArray Transform::toByteArray () {
 	QByteArray res((const char*) outXml);
 	
 	/* Vider la memoire */
-	xmlFreeDoc(docPtr); xmlFreeDoc(resPtr); xsltFreeStylesheet(stylesheet); xmlFree(outXml);
+	xmlFreeDoc(doc); xmlFreeDoc(resPtr); xsltFreeStylesheet(xsl); xmlFree(outXml);
 	
 	//qDebug(res);
 	return res;

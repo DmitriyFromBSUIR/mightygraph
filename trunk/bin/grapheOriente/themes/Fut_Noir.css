@@ -30,3 +30,8 @@ svg {
 	stroke-linejoin:round;
 	stroke-width: 7;
 	}
+
+.previewArea {
+	fill: black;
+	fill-opacity: 0.5;
+}

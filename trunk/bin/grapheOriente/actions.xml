@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
+	 Paul HUYNH <paulytech AT gmail.com>
+	 Maxime VALIERE <maxime.valiere AT polytech.univ-montp2.fr>
+	 Kevin JEAN <kevin.jean AT polytech.univ-montp2.fr>
+	 Christophe PACALY <christophe.pacaly AT polytech.univ-montp2.fr>
+	 -->
 
 <actions>
 	<action text="Ajouter un sommet" path="ajouter.xsl" min="0" max="0" type="multiple" />

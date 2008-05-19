@@ -1,4 +1,10 @@
-/* transform.h - Classe qui effectue les transformations XSL
+#ifndef TRANSFORM_H
+#define TRANSFORM_H
+/*
+ * @file transform.h
+ * @brief Wrapper pour le moteur XSLT
+ * @author Radim BADSI
+ * @date 2008-05-15
  *
  * This file is part of MightyGraph.
  * MightyGraph is free software: you can redistribute it and/or modify
@@ -13,36 +19,84 @@
 
  * You should have received a copy of the GNU General Public License
  * along with MightyGraph.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Credits :
- *
- * Radim BADSI <radim.badsi AT polytech.univ-montp2.fr>
  */
-
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
 #include <QDomDocument>
- #include <QStringList>
+#include <QStringList>
+#include <libxslt/transform.h>
 using namespace std;
+
+/** @class Transform
+ * @brief Wrapper pour le moteur XSLT
+ */
 class Transform : public QObject {
 	Q_OBJECT
 	public:
+
+	/**
+	 * @brief Constructeur
+	 */
 	Transform ();
 
+	/**
+	 * @brief Compteur de transformations (visible dans le dialogue Préférences)
+	 */
 	static int transfCounter;
-	
+
+	/**
+	 * @brief Charge un document XML à partir du système de fichier
+	 *
+	 * @param docPath : chemin d'accès (relatif ou absolu) au fichier
+	 */
 	void loadDoc (QString docPath);
+	
+	/**
+	 * @brief Charge une feuille XSL à partir du système de fichier
+	 *
+	 * @param docPath : chemin d'accès (relatif ou absolu) à la feuille
+	 */
 	void loadXsl (QString xslPath);
+	
+	/**
+	 * @brief Charge un document XML à partir de la mémoire
+	 *
+	 * @param doc : document XML
+	 */
 	void setDoc (QByteArray doc);
+	
+	/**
+	 * @brief Charge une feuille XSL à partir de la mémoire
+	 *
+	 * @param xsl : Feuille XSL
+	 */
 	void setXsl (QByteArray xsl);
+	
+	/**
+	 * @brief Ajoute un paramètre à la transformation
+	 *
+	 * @param name : Nom du paramètre
+	 * @param name : Valeur du paramètre
+	 */
 	void addParam (QString name, QString value);
+	
+	/**
+	 * @brief Ajoute un paramètre à la transformation
+	 *
+	 * @param name : Nom du paramètre
+	 * @param name : Valeur du paramètre
+	 */
 	void addParam (QString name, int value);
+	
+	/**
+	 * @brief Effectue la transformation
+	 *
+	 * @return Document XML résultant
+	 */
 	QByteArray toByteArray ();
 
 	private:
 	
-	QByteArray doc;
-	QByteArray xsl;
+	xmlDocPtr doc;
+	xsltStylesheetPtr xsl;
 	QStringList paramList;
 	
 
