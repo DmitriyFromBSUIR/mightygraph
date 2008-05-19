@@ -11,8 +11,19 @@ DESTDIR = bin
 OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
-FORMS = ui/mainwindow.ui
-HEADERS = src/mainwindowimpl.h src/svggraph.h src/transform.h
-SOURCES = src/mainwindowimpl.cpp src/main.cpp src/svggraph.cpp src/transform.cpp
+FORMS = ui/mainwindow.ui ui/preferences.ui
+HEADERS = src/mainwindowimpl.h \
+ src/svggraph.h \
+ src/transform.h \
+ src/preferencesimpl.h \
+ src/preview.h
+SOURCES = src/mainwindowimpl.cpp \
+ src/main.cpp \
+ src/svggraph.cpp \
+ src/transform.cpp \
+ src/preferencesimpl.cpp \
+ src/preview.cpp
+RESOURCES = ui/ressources.qrc
+TRANSLATIONS = mightygraph_fr_FR.ts mightygraph_en_US.ts mightygraph_cs_CZ.ts
 ICON = theapp.icns
 LIBS += -lxml2 -lxslt
