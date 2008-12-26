@@ -35,7 +35,7 @@ SvgGraph::SvgGraph( QWidget * parent) : QSvgWidget() {
 	this->parent = parent;
 
 	svgWidth = svgHeight = lastPosH = lastPosV = 0;
-	selectedId = -1; saved = 1;
+	selectedId = -1; saved = 1; zoomFactor =  1;
 
 	history = new QByteArray [MAX_HISTORY_SIZE];
 	
@@ -81,6 +81,12 @@ void SvgGraph::newDoc()
 	/* Charger la liste de types disponibles */
 	QStringList types;
 	QSettings settings;
+	
+	if (!QFile(settings.value("sys/templatesPath").toString() + "/" + "types.xml").exists()) 
+		{
+			settings.setValue("sys/templatesPath", ".");
+			
+		}
 	QFile file(settings.value("sys/templatesPath").toString() + "/" + "types.xml");
 	QDomDocument typesDom;
 	if (!file.open(QIODevice::ReadOnly))
@@ -103,10 +109,21 @@ void SvgGraph::newDoc()
 		typesHash.insert(text,path);
 		types.append(text);
 	}
-	bool *ok;
-	graphType = typesHash.value(QInputDialog::getItem(this, "MightyGraph", tr("Type :"), types, 0, false, ok));
+	bool ok;
+	graphType = typesHash.value(QInputDialog::getItem(this, "MightyGraph", tr("Type :"), types, 0, false, &ok));
 
+	if (!ok)
+		{
+			if (nbt == 0)
+			{
+				exit(0); /* L'utilisateur a appuye sur Annuler au lancement du programme */
+			} else {
+				return; /* Retourner au document */
+			}
+		} 
+	
 	loadFile(settings.value("sys/templatesPath").toString() + "/" + graphType + "/default.xml");
+	
 	path = QString(); /* Reinitialiser le chemin d'acces */
 }
 
@@ -137,10 +154,12 @@ void SvgGraph::saveAs()
 
 void SvgGraph::exportGraph()
 {
-	bool *ok; QString filter;
+	bool ok; QString filter;
 	QString format = QInputDialog::getItem(this, tr("Format"), tr("Veuillez sélectionner le format d'export :"),
-						QStringList() << tr("Image SVG") << tr("PostScript") << tr("Document PDF"), 0, false, ok);
+						QStringList() << tr("Image SVG") << tr("PostScript") << tr("Document PDF"), 0, false, &ok);
 	QString path;
+
+	if (!ok) return; /* L'utilisateur a appuye sur Annuler */
 	
 	if (format == tr("Document PDF"))
 	{
@@ -259,6 +278,8 @@ void SvgGraph::loadFile(QString path)
 	update();
 	zoomFactor = 1; /* Reinitialiser le zoom */
 	setOriginalSvgSize();
+	update();
+	
 	historyIndex = 0;
 	
 	history[historyIndex] = graphDom.toByteArray();
@@ -281,7 +302,7 @@ QSize SvgGraph::originalSvgSize() {
 
 void SvgGraph::setOriginalSvgSize() {
 	QSize newSize (originalSvgSize());
-	newSize.scale(parent->size(), Qt::KeepAspectRatio);
+	//newSize.scale(parent->size(), Qt::KeepAspectRatio);
 	resize(newSize * zoomFactor);
 	
 }
@@ -627,7 +648,7 @@ void SvgGraph::xslAction (QAction *action)
 		tr->addParam("newId", lastId()+1);
 		tr->addParam("posv", lastPosV);
 		tr->addParam("posh", lastPosH);
-		tr->addParam("value", "'XYZ'");
+		tr->addParam("value", "'vide'");
 		graphDom.setContent(tr->toByteArray());
 		delete tr;
 	} else {
@@ -753,4 +774,10 @@ void SvgGraph::redo ()
 		hashToolbar["redo"]->setDisabled(true);
 	}
 	hashToolbar["undo"]->setDisabled(false);
+}
+
+void SvgGraph::showEvent ( QShowEvent * e)
+{
+	zoomInit();
+	e->accept();
 }
