@@ -4,9 +4,6 @@
 
 <themes>
 	<theme text="Par défaut" path="default.css" />
-	<theme text="Futuriste" path="futuriste.css" />
-	<theme text="Futuriste orange" path="futuriste_orange.css" />
-	
 	<theme text="Futuriste violet" path="Fut_Violet.css" />
 	<theme text="Futuriste vert" path="Fut_Vert.css" />
 	<theme text="Futuriste rouge" path="Fut_Rouge.css" />

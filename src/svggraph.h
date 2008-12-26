@@ -218,6 +218,12 @@ class SvgGraph : public QSvgWidget
 	 */
 	void mouseDoubleClickEvent(QMouseEvent *e);
 
+	/**
+	 * @brief Evénement d'affichage (fenêtre affichée)
+	 *
+	 * @param e : Evénement 
+	 */
+	void showEvent ( QShowEvent * e);
 	
 	private:
 	Preview *preview;

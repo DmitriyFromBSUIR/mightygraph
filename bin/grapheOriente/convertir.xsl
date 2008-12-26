@@ -13,7 +13,7 @@
 
 <xsl:template match="/" priority="1">
 	<xsl:processing-instruction name="xml-stylesheet">type="text/css" href="<xsl:value-of select="$theme" />"</xsl:processing-instruction>
-	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" x="0" y="0" width="800" height="500" id="graphe">
+	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" x="0" y="0" width="1000" height="1000" id="graphe">
 		<!-- Couche 0 - Liaisons -->
 		<g id="liaisons">
 			<xsl:for-each select="graphe/liaison">

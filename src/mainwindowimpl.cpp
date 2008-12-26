@@ -56,6 +56,7 @@ MainWindowImpl::MainWindowImpl( QWidget * parent, Qt::WFlags f)
 	graphImg->getPreview()->hide();
 	graphImg->newDoc();
 	graphImg->getPreview()->show();
+
 	connect( actionOuvrir, SIGNAL( triggered() ), graphImg, SLOT( open() ) );
 	connect( actionEnregistrer, SIGNAL( triggered() ), graphImg, SLOT( save() ) );
 	connect( actionEnregistrer_sous, SIGNAL( triggered() ), graphImg, SLOT( saveAs() ) );
@@ -77,6 +78,8 @@ void MainWindowImpl::resizeEvent ( QResizeEvent * event )
 	
 	newSize.scale(event->size(), Qt::KeepAspectRatio);
 	graphImg->resize(newSize * graphImg->getZoomFactor());
+	graphImg->setOriginalSvgSize();
+	graphImg->getPreview()->updatePreviewArea();
 }
 
 void MainWindowImpl::wheelEvent(QWheelEvent *e)
@@ -104,7 +107,7 @@ void MainWindowImpl::showEvent ( QShowEvent * e)
 	int posx = settings.value("app/windowPosX").toInt();
 	int posy = settings.value("app/windowPosY").toInt();
 
-	if (posx != 0 && posy != 0) move(posx, posy);
+	//if (posx != 0 && posy != 0) move(posx, posy);
 	
 	/*TODO verifier la taille de l'ecran */
 	e->accept();
